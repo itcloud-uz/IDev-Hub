@@ -48,7 +48,7 @@ export default function AdminPaymentsPage() {
       const formData = new FormData();
       formData.append('instructions', instructions);
       if (qrFile) {
-        formData.append('qr', qrFile);
+        formData.append('qrImage', qrFile);
       }
       await updatePaymentMethod(id, formData);
       toast.success('To\'lov ma\'lumotlari yangilandi!');
