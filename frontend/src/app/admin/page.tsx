@@ -8,7 +8,19 @@ import { getAdminStats, getAdminRevenue, getAdminOrders } from '@/lib/api';
 import type { AdminStats, RevenueData, Order } from '@/types';
 import { STATUS_LABELS } from '@/types';
 import { HiUsers, HiShoppingCart, HiCurrencyDollar, HiBriefcase } from 'react-icons/hi2';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const CustomNeuralDot = (props: any) => {
+  const { cx, cy } = props;
+  if (cx === undefined || cy === undefined) return null;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={8} fill="rgba(239, 68, 68, 0.15)" stroke="rgba(239, 68, 68, 0.4)" strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={5} fill="none" stroke="rgba(255, 100, 100, 0.8)" strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={2.5} fill="#ffffff" />
+    </g>
+  );
+};
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -136,16 +148,43 @@ export default function AdminDashboardPage() {
             
             <div className="w-full h-72 min-h-[280px] mt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2A2A35" />
+                <AreaChart data={revenueData}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2A2A35" vertical={false} />
                   <XAxis dataKey="month" stroke="#8A8694" style={{ fontSize: 12, fontFamily: 'monospace' }} />
                   <YAxis stroke="#8A8694" style={{ fontSize: 12, fontFamily: 'monospace' }} />
                   <Tooltip
                     contentStyle={{ background: '#12121A', borderColor: '#EF4444', color: '#F0EDE6', fontFamily: 'monospace' }}
                     labelStyle={{ color: '#EF4444' }}
                   />
-                  <Bar dataKey="revenue" name="Daromad" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                  {/* Thick glowing synapse line */}
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    name="Daromad"
+                    stroke="rgba(239, 68, 68, 0.25)"
+                    strokeWidth={6}
+                    fill="url(#colorRevenue)"
+                    activeDot={false}
+                    dot={false}
+                  />
+                  {/* Sharp line with neural node dots */}
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    name="Daromad"
+                    stroke="#EF4444"
+                    strokeWidth={2}
+                    fill="none"
+                    dot={<CustomNeuralDot />}
+                    activeDot={{ r: 7, stroke: '#FFFFFF', strokeWidth: 2, fill: '#EF4444' }}
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </Card>
