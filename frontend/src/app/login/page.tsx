@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import MatrixRain from '@/components/ui/MatrixRain';
+import ParticleNetwork from '@/components/ui/ParticleNetwork';
 import { HiCodeBracket } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 
@@ -46,9 +47,12 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen bg-bg-primary flex items-center justify-center p-4 overflow-hidden">
-      {/* Matrix rain background */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <MatrixRain />
+      {/* Matrix rain and node background */}
+      <div className="absolute inset-0 opacity-18 pointer-events-none">
+        <MatrixRain color="gold" />
+      </div>
+      <div className="absolute inset-0 opacity-12 pointer-events-none">
+        <ParticleNetwork color="gold" />
       </div>
 
       <Card className="relative z-10 w-full max-w-md bg-bg-secondary/90 border-border-gold/30 p-8 shadow-2xl">

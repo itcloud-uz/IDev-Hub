@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ParticleNetwork from '@/components/ui/ParticleNetwork';
+import MatrixRain from '@/components/ui/MatrixRain';
 import { HiUser, HiShoppingCart, HiListBullet, HiKey, HiArrowLeftOnRectangle } from 'react-icons/hi2';
 
 interface DashboardLayoutProps {
@@ -46,8 +47,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative overflow-hidden">
       {/* Interactive Developer Nodes Background */}
-      <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
-        <ParticleNetwork />
+      <div className="absolute inset-0 opacity-[0.12] pointer-events-none z-0">
+        <MatrixRain color="gold" />
+      </div>
+      <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
+        <ParticleNetwork color="gold" />
       </div>
 
       <Navbar />

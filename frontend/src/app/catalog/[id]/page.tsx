@@ -8,6 +8,8 @@ import Footer from '@/components/layout/Footer';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
+import MatrixRain from '@/components/ui/MatrixRain';
+import ParticleNetwork from '@/components/ui/ParticleNetwork';
 import { getProduct, addToCart } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Product } from '@/types';
@@ -91,9 +93,16 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
+          <MatrixRain color="gold" />
+        </div>
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
+          <ParticleNetwork color="gold" />
+        </div>
         <Navbar />
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center relative z-10">
           <div className="w-10 h-10 border-2 border-accent-gold border-t-transparent rounded-full animate-spin" />
         </div>
         <Footer />
@@ -103,9 +112,16 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col">
+      <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
+          <MatrixRain color="gold" />
+        </div>
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
+          <ParticleNetwork color="gold" />
+        </div>
         <Navbar />
-        <div className="flex-grow flex flex-col items-center justify-center p-8">
+        <div className="flex-grow flex flex-col items-center justify-center p-8 relative z-10">
           <p className="text-xl text-text-secondary mb-4">Mahsulot topilmadi</p>
           <Link href="/catalog" className="text-accent-gold flex items-center gap-2 hover:underline">
             <HiArrowLeft /> Katalokka qaytish
@@ -117,10 +133,18 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary font-body flex flex-col">
+    <div className="min-h-screen bg-bg-primary text-text-primary font-body flex flex-col relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
+        <MatrixRain color="gold" />
+      </div>
+      <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
+        <ParticleNetwork color="gold" />
+      </div>
+
       <Navbar />
 
-      <main className="flex-grow pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <main className="flex-grow pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-10">
         <Link href="/catalog" className="inline-flex items-center gap-2 text-text-secondary hover:text-accent-gold transition-colors mb-6 text-sm">
           <HiArrowLeft /> Katalokka qaytish
         </Link>

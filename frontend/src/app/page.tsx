@@ -96,11 +96,11 @@ export default function HomePage() {
       {/* ═══════════ HERO SECTION ═══════════ */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background effects */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none">
-          <MatrixRain />
-        </div>
         <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <ParticleNetwork />
+          <MatrixRain color="gold" />
+        </div>
+        <div className="absolute inset-0 opacity-15 pointer-events-none">
+          <ParticleNetwork color="gold" />
         </div>
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/60 via-transparent to-bg-primary pointer-events-none" />

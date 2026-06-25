@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ParticleNetwork from '@/components/ui/ParticleNetwork';
+import MatrixRain from '@/components/ui/MatrixRain';
 import {
   HiChartBar,
   HiCircleStack,
@@ -56,8 +57,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative overflow-hidden">
       {/* Interactive nodes background */}
-      <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
-        <ParticleNetwork />
+      <div className="absolute inset-0 opacity-[0.12] pointer-events-none z-0">
+        <MatrixRain color="red" />
+      </div>
+      <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
+        <ParticleNetwork color="red" />
       </div>
 
       <Navbar />

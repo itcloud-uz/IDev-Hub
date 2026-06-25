@@ -10,7 +10,11 @@ interface Particle {
   radius: number;
 }
 
-export default function ParticleNetwork() {
+interface ParticleNetworkProps {
+  color?: 'gold' | 'red' | 'green';
+}
+
+export default function ParticleNetwork({ color = 'gold' }: ParticleNetworkProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number>(0);
   const mouseRef = useRef<{ x: number; y: number }>({ x: -1000, y: -1000 });
@@ -83,7 +87,14 @@ export default function ParticleNetwork() {
         // Draw particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(201, 168, 76, 0.15)';
+        
+        if (color === 'red') {
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.2)';
+        } else if (color === 'green') {
+          ctx.fillStyle = 'rgba(34, 197, 94, 0.2)';
+        } else {
+          ctx.fillStyle = 'rgba(201, 168, 76, 0.2)';
+        }
         ctx.fill();
 
         // Draw connections to other particles
@@ -98,7 +109,15 @@ export default function ParticleNetwork() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(201, 168, 76, ${opacity})`;
+            
+            if (color === 'red') {
+              ctx.strokeStyle = `rgba(239, 68, 68, ${opacity})`;
+            } else if (color === 'green') {
+              ctx.strokeStyle = `rgba(34, 197, 94, ${opacity})`;
+            } else {
+              ctx.strokeStyle = `rgba(201, 168, 76, ${opacity})`;
+            }
+            
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -116,7 +135,15 @@ export default function ParticleNetwork() {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mx, my);
-          ctx.strokeStyle = `rgba(232, 212, 139, ${opacity})`;
+          
+          if (color === 'red') {
+            ctx.strokeStyle = `rgba(254, 202, 202, ${opacity})`;
+          } else if (color === 'green') {
+            ctx.strokeStyle = `rgba(187, 247, 208, ${opacity})`;
+          } else {
+            ctx.strokeStyle = `rgba(253, 224, 71, ${opacity})`;
+          }
+          
           ctx.lineWidth = 0.8;
           ctx.stroke();
         }
@@ -133,7 +160,7 @@ export default function ParticleNetwork() {
       canvas.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animFrameRef.current);
     };
-  }, []);
+  }, [color]);
 
   return (
     <canvas

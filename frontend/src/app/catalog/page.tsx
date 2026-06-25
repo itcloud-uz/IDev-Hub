@@ -8,6 +8,8 @@ import { Card } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import Badge from '@/components/ui/Badge';
+import MatrixRain from '@/components/ui/MatrixRain';
+import ParticleNetwork from '@/components/ui/ParticleNetwork';
 import { getProducts } from '@/lib/api';
 import type { Product } from '@/types';
 import { CATEGORY_LABELS } from '@/types';
@@ -64,10 +66,18 @@ export default function CatalogPage() {
     price.toLocaleString('uz-UZ').replace(/,/g, ',') + " so'm";
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary font-body flex flex-col">
+    <div className="min-h-screen bg-bg-primary text-text-primary font-body flex flex-col relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
+        <MatrixRain color="gold" />
+      </div>
+      <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
+        <ParticleNetwork color="gold" />
+      </div>
+
       <Navbar />
 
-      <main className="flex-grow pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <main className="flex-grow pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 relative z-10">
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
           <h1 className="text-3xl sm:text-4xl font-heading font-bold text-accent-gold mb-3">
