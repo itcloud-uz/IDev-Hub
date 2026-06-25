@@ -66,8 +66,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar */}
-            <aside className="w-full md:w-64 flex-shrink-0">
-              <div className="bg-bg-secondary/70 backdrop-blur-md border border-red-500/20 rounded-lg p-4 space-y-1 relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] overflow-hidden group hover:border-red-500/40 transition-colors duration-300">
+            <aside className="w-full md:w-64 flex-shrink-0 flex flex-col">
+              <div className="bg-bg-secondary/70 backdrop-blur-md border border-red-500/20 rounded-lg p-4 space-y-1 relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] overflow-hidden group hover:border-red-500/40 transition-colors duration-300 h-full flex-grow">
                 {/* macOS control dots */}
                 <div className="flex items-center justify-between pb-3 border-b border-border-default/20 mb-3">
                   <div className="flex space-x-1.5">
