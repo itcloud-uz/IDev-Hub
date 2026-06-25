@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  blocked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+  cartItems CartItem[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  category    Category
+  price       Float
+  imageUrl    String?
+  fileUrl     String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  licenseKeys LicenseKey[]
+  orders      Order[]
+  cartItems   CartItem[]
+}
+
+enum Category {
+  SERVER_TOOLS
+  AI_BOTS
+  WEB_DEV
+  DEVOPS
+  MOBILE_DEV
+}
+
+model LicenseKey {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  keyValue  String
+  used      Boolean  @default(false)
+  orderId   String?  @unique
+  order     Order?   @relation(fields: [orderId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  productId       String
+  product         Product     @relation(fields: [productId], references: [id])
+  amount          Float
+  paymentType     PaymentType
+  status          OrderStatus @default(PENDING)
+  receiptImageUrl String?
+  licenseKey      LicenseKey?
+  manualKey       String?
+  createdAt       DateTime    @default(now())
+  confirmedAt     DateTime?
+}
+
+enum PaymentType {
+  CLICK
+  PAYNET
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model PaymentMethod {
+  id           String  @id @default(uuid())
+  name         String  @unique
+  qrImageUrl   String?
+  instructions String?
+}
+
+model BlogPost {
+  id        String   @id @default(uuid())
+  title     String
+  excerpt   String
+  content   String
+  imageUrl  String?
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}

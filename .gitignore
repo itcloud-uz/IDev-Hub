@@ -1,0 +1,56 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+web_packages/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.docusaurus/
+.cache/
+
+# Databases
+*.db
+*.db-journal
+*.sqlite
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+frontend/.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# Editor configs and system files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# User uploads
+backend/uploads/products/images/*
+backend/uploads/products/files/*
+backend/uploads/receipts/*
+backend/uploads/qr/*
+!backend/uploads/products/images/.gitkeep
+!backend/uploads/products/files/.gitkeep
+!backend/uploads/receipts/.gitkeep
+!backend/uploads/qr/.gitkeep
