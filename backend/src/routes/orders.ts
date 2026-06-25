@@ -14,12 +14,12 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     const { productId, paymentType } = req.body;
 
     if (!productId || !paymentType) {
-      res.status(400).json({ error: 'Product ID and payment type are required' });
+      res.status(400).json({ error: 'Mahsulot ID va to\'lov turi kiritilishi shart' });
       return;
     }
 
     if (!Object.values(PaymentType).includes(paymentType as PaymentType)) {
-      res.status(400).json({ error: 'Invalid payment type. Must be CLICK or PAYNET' });
+      res.status(400).json({ error: 'Noto\'g\'ri to\'lov turi. CLICK yoki PAYNET bo\'lishi kerak' });
       return;
     }
 
@@ -29,7 +29,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      res.status(404).json({ error: 'Product not found' });
+      res.status(404).json({ error: 'Mahsulot topilmadi' });
       return;
     }
 

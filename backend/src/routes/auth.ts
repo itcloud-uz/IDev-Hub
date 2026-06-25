@@ -12,7 +12,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      res.status(400).json({ error: 'Name, email, and password are required' });
+      res.status(400).json({ error: 'Ism, email va parol kiritilishi shart' });
       return;
     }
 
@@ -26,7 +26,7 @@ router.post('/register', async (req: Request, res: Response) => {
     // Check email uniqueness
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      res.status(409).json({ error: 'A user with this email already exists' });
+      res.status(409).json({ error: 'Ushbu email manzilli foydalanuvchi allaqachon mavjud' });
       return;
     }
 
@@ -61,24 +61,24 @@ router.post('/login', async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' });
+      res.status(400).json({ error: 'Email va parol kiritilishi shart' });
       return;
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.status(401).json({ error: 'Invalid email or password' });
+      res.status(401).json({ error: 'Email yoki parol xato' });
       return;
     }
 
     if (user.blocked) {
-      res.status(403).json({ error: 'Your account has been blocked. Please contact support.' });
+      res.status(403).json({ error: 'Hisobingiz bloklangan. Iltimos, qo\'llab-quvvatlash xizmati bilan bog\'laning.' });
       return;
     }
 
     const validPassword = await comparePassword(password, user.password);
     if (!validPassword) {
-      res.status(401).json({ error: 'Invalid email or password' });
+      res.status(401).json({ error: 'Email yoki parol xato' });
       return;
     }
 
@@ -107,7 +107,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
-      res.status(400).json({ error: 'Refresh token is required' });
+      res.status(400).json({ error: 'Refresh token kiritilishi shart' });
       return;
     }
 
@@ -115,12 +115,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
 
     if (!user) {
-      res.status(401).json({ error: 'User not found' });
+      res.status(401).json({ error: 'Foydalanuvchi topilmadi' });
       return;
     }
 
     if (user.blocked) {
-      res.status(403).json({ error: 'Your account has been blocked' });
+      res.status(403).json({ error: 'Hisobingiz bloklangan' });
       return;
     }
 
@@ -128,7 +128,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     res.json({ accessToken: newAccessToken });
   } catch (error) {
-    res.status(401).json({ error: 'Invalid or expired refresh token' });
+    res.status(401).json({ error: 'Yaroqsiz yoki muddati o\'tgan refresh token' });
   }
 });
 
