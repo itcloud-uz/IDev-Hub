@@ -58,28 +58,33 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                {isAdmin && (
+                {isAdmin ? (
                   <Link
                     href="/admin"
-                    className="text-xs font-semibold px-3 py-1.5 border border-red-500/30 bg-red-500/10 text-error rounded hover:bg-red-500/20 hover:border-error transition-all duration-300"
+                    className={`text-sm font-semibold px-4 py-2 border border-red-500/30 bg-red-500/10 text-error rounded hover:bg-red-500/20 hover:border-error transition-all duration-300 ${
+                      pathname.startsWith('/admin') ? 'border-red-500' : ''
+                    }`}
                   >
                     Admin panel
                   </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className={`text-sm font-medium hover:text-accent-gold transition-colors ${
+                        pathname.startsWith('/dashboard') ? 'text-accent-gold' : 'text-text-secondary'
+                      }`}
+                    >
+                      Shaxsiy kabinet
+                    </Link>
+                    <Link
+                      href="/dashboard/cart"
+                      className="p-2 text-text-secondary hover:text-accent-gold relative transition-colors"
+                    >
+                      <HiShoppingCart className="w-6 h-6" />
+                    </Link>
+                  </>
                 )}
-                <Link
-                  href="/dashboard"
-                  className={`text-sm font-medium hover:text-accent-gold transition-colors ${
-                    pathname.startsWith('/dashboard') ? 'text-accent-gold' : 'text-text-secondary'
-                  }`}
-                >
-                  Shaxsiy kabinet
-                </Link>
-                <Link
-                  href="/dashboard/cart"
-                  className="p-2 text-text-secondary hover:text-accent-gold relative transition-colors"
-                >
-                  <HiShoppingCart className="w-6 h-6" />
-                </Link>
                 <button
                   onClick={logout}
                   className="text-sm font-medium px-4 py-2 border border-border-default hover:border-accent-gold/50 rounded hover:bg-bg-tertiary text-text-secondary hover:text-text-primary transition-all duration-300"
@@ -137,7 +142,7 @@ export default function Navbar() {
             ))}
             {user ? (
               <>
-                {isAdmin && (
+                {isAdmin ? (
                   <Link
                     href="/admin"
                     onClick={() => setIsOpen(false)}
@@ -145,21 +150,24 @@ export default function Navbar() {
                   >
                     Admin panel
                   </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+                    >
+                      Shaxsiy kabinet
+                    </Link>
+                    <Link
+                      href="/dashboard/cart"
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
+                    >
+                      Savatim
+                    </Link>
+                  </>
                 )}
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-                >
-                  Shaxsiy kabinet
-                </Link>
-                <Link
-                  href="/dashboard/cart"
-                  onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"
-                >
-                  Savatim
-                </Link>
                 <button
                   onClick={() => {
                     setIsOpen(false);

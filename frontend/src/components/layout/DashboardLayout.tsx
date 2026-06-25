@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import ParticleNetwork from '@/components/ui/ParticleNetwork';
 import { HiUser, HiShoppingCart, HiListBullet, HiKey, HiArrowLeftOnRectangle } from 'react-icons/hi2';
 
 interface DashboardLayoutProps {
@@ -18,10 +19,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login');
+    if (!loading) {
+      if (!isAuthenticated) {
+        router.push('/login');
+      } else if (user?.role === 'ADMIN') {
+        router.push('/admin');
+      }
     }
-  }, [loading, isAuthenticated, router]);
+  }, [loading, isAuthenticated, user, router]);
 
   if (loading || !isAuthenticated) {
     return (
@@ -39,19 +44,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col">
+    <div className="min-h-screen bg-bg-primary flex flex-col relative overflow-hidden">
+      {/* Interactive Developer Nodes Background */}
+      <div className="absolute inset-0 opacity-[0.08] pointer-events-none z-0">
+        <ParticleNetwork />
+      </div>
+
       <Navbar />
 
-      <div className="flex-grow pt-16">
+      <div className="flex-grow pt-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar */}
             <aside className="w-full md:w-64 flex-shrink-0">
-              <div className="bg-bg-secondary border border-border-default/60 rounded-lg p-4 space-y-1">
-                <div className="px-3 py-2 border-b border-border-default/40 mb-3">
-                  <p className="text-text-muted text-xs uppercase tracking-wider">Shaxsiy kabinet</p>
-                  <p className="text-text-primary text-sm font-semibold truncate mt-1">{user?.name}</p>
+              <div className="bg-bg-secondary/70 backdrop-blur-md border border-border-gold/30 rounded-lg p-4 space-y-1 relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] overflow-hidden group hover:border-accent-gold/40 transition-colors duration-300">
+                {/* macOS control dots */}
+                <div className="flex items-center justify-between pb-3 border-b border-border-default/20 mb-3">
+                  <div className="flex space-x-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500/80 shadow-[0_0_6px_rgba(239,68,68,0.4)]" />
+                    <span className="w-2 h-2 rounded-full bg-yellow-500/80 shadow-[0_0_6px_rgba(234,179,8,0.4)]" />
+                    <span className="w-2 h-2 rounded-full bg-green-500/80 shadow-[0_0_6px_rgba(34,197,94,0.4)]" />
+                  </div>
+                  <span className="text-[9px] font-mono text-text-muted">bash - idev.sh</span>
                 </div>
+
+                <div className="px-3 py-2 bg-bg-primary/50 rounded border border-border-default/20 mb-3 font-mono">
+                  <p className="text-text-muted text-[9px] uppercase tracking-wider">DEV_SESSION</p>
+                  <p className="text-accent-gold text-xs font-semibold truncate mt-0.5">$ {user?.name}</p>
+                </div>
+
                 {sidebarLinks.map((link) => {
                   const Icon = link.icon;
                   const active = pathname === link.path;
@@ -61,27 +82,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       href={link.path}
                       className={`flex items-center gap-3 px-4 py-2.5 rounded text-sm font-medium transition-all duration-200 ${
                         active
-                          ? 'bg-accent-gold/10 text-accent-gold border-l-2 border-accent-gold pl-3.5'
-                          : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
+                          ? 'bg-accent-gold/15 text-accent-gold border-l-2 border-accent-gold pl-3.5 shadow-[inset_0_0_10px_rgba(201,168,76,0.08)]'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/60'
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
-                      {link.name}
+                      <Icon className={`w-4 h-4 ${active ? 'text-accent-gold' : 'text-text-muted'}`} />
+                      <span className="font-mono text-xs">{link.name}</span>
                     </Link>
                   );
                 })}
                 <button
                   onClick={logout}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 rounded text-sm font-medium text-error hover:bg-bg-tertiary/50 transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 rounded text-sm font-medium text-error hover:bg-red-500/10 hover:text-red-400 transition-colors"
                 >
-                  <HiArrowLeftOnRectangle className="w-5 h-5" />
-                  Chiqish
+                  <HiArrowLeftOnRectangle className="w-4 h-4" />
+                  <span className="font-mono text-xs">Chiqish</span>
                 </button>
               </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-grow bg-bg-secondary/40 border border-border-default/45 rounded-lg p-6 min-h-[500px]">
+            <main className="flex-grow bg-bg-secondary/30 backdrop-blur-sm border border-border-default/45 rounded-lg p-6 min-h-[500px] relative z-10 shadow-[0_4px_30px_rgba(0,0,0,0.2)]">
               {children}
             </main>
           </div>

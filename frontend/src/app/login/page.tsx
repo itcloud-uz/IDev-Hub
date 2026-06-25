@@ -30,8 +30,12 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      await login(email, password);
-      router.push('/dashboard');
+      const loggedUser = await login(email, password);
+      if (loggedUser && loggedUser.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.error || 'Email yoki parol xato');
