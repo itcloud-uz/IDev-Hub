@@ -124,26 +124,21 @@ export const getProduct = (id: string) => api.get(`/products/${id}`);
 export const getCart = () => api.get('/cart');
 
 export const addToCart = (productId: string) =>
-  api.post('/cart', { productId });
+  api.post('/cart/add', { productId });
 
 export const removeFromCart = (id: string) => api.delete(`/cart/${id}`);
 
-export const clearCart = () => api.delete('/cart');
+export const clearCart = () => api.delete('/cart/clear');
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
 export const createOrder = (productId: string, paymentType: string) =>
   api.post('/orders', { productId, paymentType });
 
-export const markAsPaid = (orderId: string, receiptImage?: File) => {
-  if (receiptImage) {
-    const formData = new FormData();
-    formData.append('receipt', receiptImage);
-    return api.put(`/orders/${orderId}/pay`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-  }
-  return api.put(`/orders/${orderId}/pay`);
+export const markAsPaid = (orderId: string, formData: FormData) => {
+  return api.post(`/orders/${orderId}/paid`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
 export const getMyOrders = () => api.get('/orders/my');
@@ -189,10 +184,10 @@ export const uploadProductFile = (id: string, formData: FormData) =>
   });
 
 export const addLicenseKeys = (productId: string, keys: string[]) =>
-  api.post(`/admin/products/${productId}/license-keys`, { keys });
+  api.post(`/admin/products/${productId}/keys`, { keys });
 
 export const getLicenseKeys = (productId: string) =>
-  api.get(`/admin/products/${productId}/license-keys`);
+  api.get(`/admin/products/${productId}/keys`);
 
 export const getAdminOrders = (params?: Record<string, string | number | boolean>) =>
   api.get('/admin/orders', { params });
@@ -202,7 +197,7 @@ export const confirmOrder = (id: string) => api.patch(`/admin/orders/${id}/confi
 export const cancelOrder = (id: string) => api.patch(`/admin/orders/${id}/cancel`);
 
 export const setManualKey = (orderId: string, key: string) =>
-  api.put(`/admin/orders/${orderId}/manual-key`, { key });
+  api.patch(`/admin/orders/${orderId}/manual-key`, { key });
 
 export const updatePaymentMethod = (id: string, formData: FormData) =>
   api.put(`/admin/payment-methods/${id}`, formData, {
@@ -223,7 +218,7 @@ export const deleteBlogPost = (id: string) => api.delete(`/admin/blog/${id}`);
 
 export const getAdminUsers = () => api.get('/admin/users');
 
-export const toggleBlockUser = (id: string) => api.patch(`/admin/users/${id}/toggle-block`);
+export const toggleBlockUser = (id: string) => api.patch(`/admin/users/${id}/block`);
 
 export const getAdminUser = (id: string) => api.get(`/admin/users/${id}`);
 

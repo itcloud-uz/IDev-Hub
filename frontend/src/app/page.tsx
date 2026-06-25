@@ -72,10 +72,10 @@ export default function HomePage() {
           getBlogPosts(),
         ]);
         if (productsRes.status === 'fulfilled') {
-          setProducts(productsRes.value.slice(0, 6));
+          setProducts(productsRes.value.data.products.slice(0, 6));
         }
         if (blogRes.status === 'fulfilled') {
-          setBlogPosts(blogRes.value.slice(0, 3));
+          setBlogPosts(blogRes.value.data.posts.slice(0, 3));
         }
       } catch {
         // Silently handle - show empty states

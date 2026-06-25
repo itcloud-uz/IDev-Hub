@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import { getAdminUsers, toggleBlockUser, getAdminUser } from '@/lib/api';
 import type { User, Order } from '@/types';
+import { STATUS_LABELS } from '@/types';
 import { HiOutlineUserMinus, HiOutlineUserPlus, HiOutlineEye } from 'react-icons/hi2';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
@@ -22,8 +23,8 @@ export default function AdminUsersPage() {
 
   async function loadUsers() {
     try {
-      const data = await getAdminUsers();
-      setUsers(data);
+      const res = await getAdminUsers();
+      setUsers(res.data.users || []);
     } catch (err) {
       console.error(err);
       toast.error('Foydalanuvchilarni yuklab bo\'lmadi');
@@ -55,8 +56,8 @@ export default function AdminUsersPage() {
     setIsModalOpen(true);
     setLoadingUserDetail(true);
     try {
-      const data = await getAdminUser(user.id);
-      setUserOrders(data.orders || []);
+      const res = await getAdminUser(user.id);
+      setUserOrders(res.data.user.orders || []);
     } catch (err) {
       console.error(err);
       toast.error('Xaridlar tarixini yuklab bo\'lmadi');

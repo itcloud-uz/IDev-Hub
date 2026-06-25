@@ -38,8 +38,8 @@ export default function ProductDetailPage() {
     async function fetchProduct() {
       if (!id) return;
       try {
-        const data = await getProduct(id as string);
-        setProduct(data);
+        const res = await getProduct(id as string);
+        setProduct(res.data.product);
       } catch (err) {
         console.error('Failed to load product', err);
         toast.error('Mahsulot yuklanmadi');

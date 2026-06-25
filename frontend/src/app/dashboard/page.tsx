@@ -20,7 +20,7 @@ export default function DashboardPage() {
     async function loadDashboardData() {
       try {
         const data = await getMyOrders();
-        setOrders(data);
+        setOrders(data.data.orders);
       } catch (err) {
         console.error(err);
       } finally {
@@ -30,9 +30,11 @@ export default function DashboardPage() {
     loadDashboardData();
   }, []);
 
-  const totalSpent = orders
-    .filter((o) => o.status === 'CONFIRMED')
-    .reduce((acc, curr) => acc + curr.amount, 0);
+  const safeOrders = Array.isArray(orders) ? orders : [];
+
+  const totalSpent = safeOrders
+    .filter((o) => o?.status === 'CONFIRMED')
+    .reduce((acc, curr) => acc + (curr?.amount || 0), 0);
 
   const formatPrice = (price: number) =>
     price.toLocaleString('uz-UZ').replace(/,/g, ',') + " so'm";
@@ -64,7 +66,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-text-muted text-xs uppercase tracking-wider">Buyurtmalarim</p>
-              <p className="text-2xl font-bold font-mono mt-0.5">{orders.length}</p>
+              <p className="text-2xl font-bold font-mono mt-0.5">{safeOrders.length}</p>
             </div>
           </Card>
 
@@ -75,7 +77,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-text-muted text-xs uppercase tracking-wider">Litsenziyalar</p>
               <p className="text-2xl font-bold font-mono mt-0.5">
-                {orders.filter((o) => o.status === 'CONFIRMED').length}
+                {safeOrders.filter((o) => o?.status === 'CONFIRMED').length}
               </p>
             </div>
           </Card>
@@ -108,7 +110,7 @@ export default function DashboardPage() {
                 <div key={i} className="h-12 bg-bg-tertiary rounded animate-pulse" />
               ))}
             </div>
-          ) : orders.length > 0 ? (
+          ) : safeOrders.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
@@ -120,7 +122,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border-default/20">
-                  {orders.slice(0, 5).map((order) => (
+                  {safeOrders.slice(0, 5).map((order) => (
                     <tr key={order.id} className="text-text-secondary">
                       <td className="py-3 font-medium text-text-primary">{order.product?.name}</td>
                       <td className="py-3 font-mono text-accent-gold">{formatPrice(order.amount)}</td>

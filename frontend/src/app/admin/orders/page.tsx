@@ -27,7 +27,7 @@ export default function AdminOrdersPage() {
       const params: Record<string, string> = {};
       if (statusFilter !== 'ALL') params.status = statusFilter;
       const data = await getAdminOrders(params);
-      setOrders(data);
+      setOrders(data.data.orders);
     } catch (err) {
       console.error(err);
       toast.error('Buyurtmalarni yuklab bo\'lmadi');

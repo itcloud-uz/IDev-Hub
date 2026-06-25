@@ -45,7 +45,7 @@ export default function CatalogPage() {
         if (search) params.search = search;
         
         const data = await getProducts(params);
-        setProducts(data);
+        setProducts(data.data.products);
       } catch (err) {
         console.error('Failed to load products', err);
       } finally {

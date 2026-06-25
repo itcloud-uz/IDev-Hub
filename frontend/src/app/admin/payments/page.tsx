@@ -22,8 +22,8 @@ export default function AdminPaymentsPage() {
 
   async function loadMethods() {
     try {
-      const data = await getPaymentMethods();
-      setMethods(data);
+      const res = await getPaymentMethods();
+      setMethods(res.data.paymentMethods || []);
     } catch (err) {
       console.error(err);
       toast.error('To\'lov usullarini yuklab bo\'lmadi');

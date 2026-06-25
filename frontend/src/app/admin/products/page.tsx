@@ -63,7 +63,7 @@ export default function AdminProductsPage() {
   async function loadProducts() {
     try {
       const data = await getAdminProducts();
-      setProducts(data);
+      setProducts(data.data.products);
     } catch (err) {
       console.error(err);
       toast.error('Mahsulotlarni yuklab bo\'lmadi');
@@ -187,8 +187,8 @@ export default function AdminProductsPage() {
     setNewKeysText('');
     setIsKeysModalOpen(true);
     try {
-      const keys = await getLicenseKeys(product.id);
-      setKeysList(keys);
+      const res = await getLicenseKeys(product.id);
+      setKeysList(res.data.licenseKeys || []);
     } catch (err) {
       console.error(err);
     }
@@ -209,8 +209,8 @@ export default function AdminProductsPage() {
       toast.success('Litsenziya kalitlari muvaffaqiyatli qo\'shildi!');
       
       // Reload keys
-      const updatedKeys = await getLicenseKeys(selectedProductForKeys.id);
-      setKeysList(updatedKeys);
+      const updatedKeysRes = await getLicenseKeys(selectedProductForKeys.id);
+      setKeysList(updatedKeysRes.data.licenseKeys || []);
       setNewKeysText('');
     } catch (err) {
       console.error(err);

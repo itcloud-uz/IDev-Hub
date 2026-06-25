@@ -22,7 +22,7 @@ export default function CartPage() {
   async function loadCart() {
     try {
       const data = await getCart();
-      setCartItems(data);
+      setCartItems(data.data.cartItems);
     } catch (err) {
       console.error(err);
       toast.error('Savatni yuklashda xatolik yuz berdi');

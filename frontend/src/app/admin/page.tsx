@@ -19,14 +19,14 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function loadStats() {
       try {
-        const [statsData, revData, ordersData] = await Promise.all([
+        const [statsRes, revRes, ordersRes] = await Promise.all([
           getAdminStats(),
           getAdminRevenue(),
           getAdminOrders({ limit: '5' })
         ]);
-        setStats(statsData);
-        setRevenueData(revData);
-        setRecentOrders(ordersData);
+        setStats(statsRes.data);
+        setRevenueData(revRes.data.revenue || []);
+        setRecentOrders(ordersRes.data.orders || []);
       } catch (err) {
         console.error(err);
       } finally {

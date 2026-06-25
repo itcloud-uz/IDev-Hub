@@ -30,6 +30,11 @@ export interface LicenseKey {
 export interface Order {
   id: string;
   userId: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
   productId: string;
   product: Product;
   amount: number;

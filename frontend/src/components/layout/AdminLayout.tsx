@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <span className="inline-block text-[10px] bg-red-500/15 text-error px-2 py-0.5 rounded font-heading font-semibold uppercase tracking-wider mb-1.5">
                     Admin Kontrol
                   </span>
-                  <p className="text-text-primary text-sm font-semibold truncate">{user.name}</p>
+                  <p className="text-text-primary text-sm font-semibold truncate">{user?.name}</p>
                 </div>
                 {sidebarLinks.map((link) => {
                   const Icon = link.icon;

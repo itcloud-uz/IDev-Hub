@@ -9,7 +9,6 @@ import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost } from '@/lib/api';
 import type { BlogPost } from '@/types';
-import { HiPlus, HiTrash, HiPencil } from 'react-icons/x'; // using custom or hi2
 import { HiOutlineDocumentText, HiOutlinePlus, HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 
@@ -31,8 +30,8 @@ export default function AdminBlogPage() {
 
   async function loadPosts() {
     try {
-      const data = await getBlogPosts();
-      setPosts(data);
+      const res = await getBlogPosts();
+      setPosts(res.data.posts || []);
     } catch (err) {
       console.error(err);
       toast.error('Maqolalarni yuklab bo\'lmadi');

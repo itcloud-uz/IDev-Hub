@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -30,9 +31,11 @@ export default function CheckoutPage() {
           getCart(),
           getPaymentMethods()
         ]);
-        setCartItems(cartData);
-        setPaymentMethods(methodsData);
-        if (cartData.length === 0) {
+        const cartList = cartData.data.cartItems || [];
+        const methodsList = methodsData.data.paymentMethods || [];
+        setCartItems(cartList);
+        setPaymentMethods(methodsList);
+        if (cartList.length === 0) {
           toast.error('Savatingiz bo\'sh');
           router.push('/dashboard/cart');
         }
@@ -64,7 +67,8 @@ export default function CheckoutPage() {
     try {
       // Loop through all items and create order
       for (const item of cartItems) {
-        const order = await createOrder(item.product.id, selectedMethod);
+        const res = await createOrder(item.product.id, selectedMethod);
+        const order = res.data.order;
         
         // If receipt uploaded, submit it
         if (receiptFile && order && order.id) {

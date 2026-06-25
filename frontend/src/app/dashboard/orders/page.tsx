@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button';
 import { getMyOrders, downloadFile } from '@/lib/api';
 import type { Order } from '@/types';
 import { STATUS_LABELS } from '@/types';
-import { HiDownload, HiClipboardDocumentCheck, HiClipboard, HiCube, HiShieldCheck } from 'react-icons/hi2';
+import { HiArrowDownTray, HiClipboardDocumentCheck, HiClipboard, HiCube, HiShieldCheck } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 
 export default function OrdersPage() {
@@ -20,7 +20,7 @@ export default function OrdersPage() {
   async function loadOrders() {
     try {
       const data = await getMyOrders();
-      setOrders(data);
+      setOrders(data.data.orders);
     } catch (err) {
       console.error(err);
       toast.error('Buyurtmalarni yuklab bo\'lmadi');
@@ -36,7 +36,8 @@ export default function OrdersPage() {
   const handleDownload = async (orderId: string, filename: string) => {
     setDownloadingId(orderId);
     try {
-      const blob = await downloadFile(orderId);
+      const res = await downloadFile(orderId);
+      const blob = res.data;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -155,7 +156,7 @@ export default function OrdersPage() {
                         isLoading={downloadingId === order.id}
                         onClick={() => handleDownload(order.id, order.product?.name ? `${order.product.name.replace(/\s+/g, '_').toLowerCase()}.zip` : '')}
                       >
-                        <HiDownload className="w-4 h-4 mr-1.5" />
+                        <HiArrowDownTray className="w-4 h-4 mr-1.5" />
                         Yuklab olish
                       </Button>
                     ) : order.status === 'PENDING' ? (

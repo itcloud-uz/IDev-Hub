@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="bg-bg-secondary border border-border-default/60 rounded-lg p-4 space-y-1">
                 <div className="px-3 py-2 border-b border-border-default/40 mb-3">
                   <p className="text-text-muted text-xs uppercase tracking-wider">Shaxsiy kabinet</p>
-                  <p className="text-text-primary text-sm font-semibold truncate mt-1">{user.name}</p>
+                  <p className="text-text-primary text-sm font-semibold truncate mt-1">{user?.name}</p>
                 </div>
                 {sidebarLinks.map((link) => {
                   const Icon = link.icon;
