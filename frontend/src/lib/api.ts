@@ -71,7 +71,7 @@ api.interceptors.response.use(
         if (!refreshTkn) throw new Error('No refresh token');
 
         const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
+          `${typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:5000/api` : 'http://localhost:5000/api'}/auth/refresh`,
           { refreshToken: refreshTkn }
         );
 
