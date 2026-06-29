@@ -59,6 +59,35 @@ export default function AdminProductsPage() {
   const [keysList, setKeysList] = useState<LicenseKey[]>([]);
   const [newKeysText, setNewKeysText] = useState('');
   const [submittingKeys, setSubmittingKeys] = useState(false);
+  const [generateCount, setGenerateCount] = useState(5);
+
+  const handleGenerateKeys = () => {
+    if (generateCount <= 0 || generateCount > 100) {
+      toast.error("Kalitlar soni 1 va 100 oralig'ida bo'lishi kerak");
+      return;
+    }
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const generateSegment = () => {
+      let segment = '';
+      for (let i = 0; i < 4; i++) {
+        segment += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return segment;
+    };
+
+    const newKeys: string[] = [];
+    for (let i = 0; i < generateCount; i++) {
+      newKeys.push(`KEY-${generateSegment()}-${generateSegment()}-${generateSegment()}`);
+    }
+
+    setNewKeysText((prev) => {
+      const existing = prev.trim();
+      const joined = newKeys.join('\n');
+      return existing ? `${existing}\n${joined}` : joined;
+    });
+
+    toast.success(`${generateCount} ta tasodifiy litsenziya kaliti yaratildi!`);
+  };
 
   async function loadProducts() {
     try {
@@ -429,8 +458,30 @@ export default function AdminProductsPage() {
             <form onSubmit={handleKeysSubmit} className="space-y-4">
               <h4 className="font-heading text-sm font-semibold text-accent-gold">Yangi kalitlar qo&apos;shish</h4>
               <p className="text-[10px] text-text-muted">
-                Har bir qatorga bitta kalit qiymatini kiriting.
+                Har bir qatorga bitta kalit qiymatini kiriting yoki quyida generatsiya qiling.
               </p>
+
+              <div className="flex items-end gap-3 bg-bg-tertiary/40 border border-border-default/20 p-3 rounded">
+                <div className="flex-1">
+                  <label className="text-[10px] text-text-secondary block mb-1">Nechta kalit generatsiya qilinsin?</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={generateCount}
+                    onChange={(e) => setGenerateCount(Math.min(100, Math.max(1, parseInt(e.target.value) || 1)))}
+                    className="w-full bg-bg-secondary text-text-primary border border-border-default/60 rounded px-2.5 py-1 text-xs outline-none focus:border-accent-gold"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateKeys}
+                  className="bg-accent-gold/20 text-accent-gold hover:bg-accent-gold hover:text-bg-primary transition-all duration-300 font-semibold text-xs px-3 py-1.5 rounded h-[28px] flex items-center justify-center gap-1"
+                >
+                  🎲 Generatsiya
+                </button>
+              </div>
+
               <textarea
                 rows={6}
                 placeholder="KEY-XXXX-XXXX-XXXX&#10;KEY-YYYY-YYYY-YYYY"
