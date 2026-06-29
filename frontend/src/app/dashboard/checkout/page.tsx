@@ -7,7 +7,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
-import { getCart, getPaymentMethods, createOrder, markAsPaid } from '@/lib/api';
+import { getCart, getPaymentMethods, createOrder, markAsPaid, getFileUrl } from '@/lib/api';
 import type { CartItem, PaymentMethod } from '@/types';
 import { CATEGORY_LABELS } from '@/types';
 import { HiCheckCircle, HiArrowLeft, HiOutlineQrCode } from 'react-icons/hi2';
@@ -117,7 +117,7 @@ export default function CheckoutPage() {
 
   // Get active payment method details
   const methodDetail = paymentMethods.find((m) => m.name.toUpperCase() === selectedMethod);
-  const qrImage = methodDetail?.qrImageUrl ? `http://localhost:5000${methodDetail.qrImageUrl}` : null;
+  const qrImage = methodDetail?.qrImageUrl ? getFileUrl(methodDetail.qrImageUrl!) : null;
   const instructions = methodDetail?.instructions || `QR kodni skanerlang va to'lovni amalga oshiring.`;
 
   return (

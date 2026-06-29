@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { getAdminOrders, confirmOrder, cancelOrder, setManualKey } from '@/lib/api';
+import { getAdminOrders, confirmOrder, cancelOrder, setManualKey, getFileUrl } from '@/lib/api';
 import type { Order } from '@/types';
 import { STATUS_LABELS } from '@/types';
 import { HiCheck, HiXMark, HiPhoto, HiOutlineLockOpen } from 'react-icons/hi2';
@@ -132,7 +132,7 @@ export default function AdminOrdersPage() {
             {orders.map((order) => {
               const isExpanded = expandedOrderId === order.id;
               const hasReceipt = !!order.receiptImageUrl;
-              const receiptUrl = hasReceipt ? `http://localhost:5000${order.receiptImageUrl}` : null;
+              const receiptUrl = hasReceipt ? getFileUrl(order.receiptImageUrl!) : null;
               
               return (
                 <Card key={order.id} className="bg-bg-secondary/40 border-border-default/60 p-0 overflow-hidden">

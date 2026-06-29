@@ -5,7 +5,7 @@ import AdminLayout from '@/components/layout/AdminLayout';
 import { Card } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { getPaymentMethods, updatePaymentMethod } from '@/lib/api';
+import { getPaymentMethods, updatePaymentMethod, getFileUrl } from '@/lib/api';
 import type { PaymentMethod } from '@/types';
 import { HiOutlineQrCode, HiCheck } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
@@ -89,7 +89,7 @@ export default function AdminPaymentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {methods.map((method) => {
             const isEditing = editingId === method.id;
-            const qrImage = method.qrImageUrl ? `http://localhost:5000${method.qrImageUrl}` : null;
+            const qrImage = method.qrImageUrl ? getFileUrl(method.qrImageUrl!) : null;
             
             return (
               <Card key={method.id} className="bg-bg-secondary/60 border-border-gold/20 p-6 flex flex-col justify-between">
