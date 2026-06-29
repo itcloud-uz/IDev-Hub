@@ -1,21 +1,54 @@
 import https from 'https';
+import fs from 'fs';
+import path from 'path';
 import prisma from '../lib/prisma';
+import { PaymentType } from '@prisma/client';
+
+const CATEGORY_LABELS: Record<string, string> = {
+  SERVER_TOOLS: 'Server vositalari',
+  AI_BOTS: 'AI/Botlar',
+  WEB_DEV: 'Web dasturlash',
+  DEVOPS: 'DevOps',
+  MOBILE_DEV: 'Mobil dasturlash',
+};
+
+const sessionFilePath = path.join(process.cwd(), 'telegram_sessions.json');
 
 class TelegramBotService {
   private token: string;
   private offset: number = 0;
   private isRunning: boolean = false;
+  private sessions: Record<number, { email: string; userId: string }> = {};
 
   constructor() {
     this.token = process.env.TELEGRAM_BOT_TOKEN || '8949540479:AAG82j7c1tIKMW2U9bautgbVtjUjZLnPWEI';
-    // Clean potential quotes
     this.token = this.token.replace(/['"]/g, '');
+    this.loadSessions();
+  }
+
+  private loadSessions() {
+    try {
+      if (fs.existsSync(sessionFilePath)) {
+        this.sessions = JSON.parse(fs.readFileSync(sessionFilePath, 'utf8'));
+      }
+    } catch (e) {
+      console.error('Error loading Telegram sessions:', e);
+      this.sessions = {};
+    }
+  }
+
+  private saveSessions() {
+    try {
+      fs.writeFileSync(sessionFilePath, JSON.stringify(this.sessions, null, 2), 'utf8');
+    } catch (e) {
+      console.error('Error saving Telegram sessions:', e);
+    }
   }
 
   public start() {
     if (this.isRunning) return;
     this.isRunning = true;
-    console.log('🤖 Telegram Support Bot starting...');
+    console.log('🤖 Telegram Support & Shop Bot starting...');
     this.poll();
   }
 
@@ -35,11 +68,15 @@ class TelegramBotService {
                 this.handleMessage(update.message).catch(err => {
                   console.error('Error handling Telegram message:', err);
                 });
+              } else if (update.callback_query) {
+                this.handleCallbackQuery(update.callback_query).catch(err => {
+                  console.error('Error handling Telegram callback query:', err);
+                });
               }
             }
           }
         } catch (e) {
-          // JSON Parse error or similar
+          // JSON Parse error
         }
         if (this.isRunning) {
           setTimeout(() => this.poll(), 1000);
@@ -59,19 +96,29 @@ class TelegramBotService {
 
     if (!text) return;
 
-    // Handle slash commands or menu clicks
+    // Command handlers
     if (text === '/start') {
       await this.sendWelcomeMessage(chatId);
       return;
     }
 
-    if (text === '💳 To\'lov usullari') {
-      await this.sendPaymentMethods(chatId);
+    if (text === '🛍️ Mahsulotlar') {
+      await this.sendProducts(chatId);
       return;
     }
 
-    if (text === '🚀 Sotib olish ko\'rsatmasi') {
-      await this.sendPurchaseGuide(chatId);
+    if (text === '🛒 Savatim') {
+      await this.sendCart(chatId);
+      return;
+    }
+
+    if (text === '🔍 Buyurtmalarim') {
+      const session = this.sessions[chatId];
+      if (!session) {
+        this.sendMessage(chatId, `🔍 Buyurtmalarni tekshirish uchun iltimos avval profilingiz emailini yuboring (masalan: <code>user@idev-hub.com</code>).`);
+      } else {
+        await this.checkUserByEmail(chatId, session.email);
+      }
       return;
     }
 
@@ -83,23 +130,197 @@ class TelegramBotService {
     // Check if user entered an email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test(text)) {
-      await this.checkUserByEmail(chatId, text.toLowerCase());
+      await this.linkProfileByEmail(chatId, text.toLowerCase());
       return;
     }
 
-    // Default fallback: assume they sent some text and help them
+    // Default fallback
     await this.handleGeneralText(chatId, text);
   }
 
+  private async handleCallbackQuery(query: any) {
+    const queryId = query.id;
+    const chatId = query.message.chat.id;
+    const data = query.data;
+
+    if (!data) return;
+
+    const session = this.sessions[chatId];
+
+    if (data.startsWith('add_to_cart:') || data.startsWith('buy_now:')) {
+      if (!session) {
+        this.answerCallbackQuery(queryId, '⚠️ Iltimos, oldin email manzilingizni yuborib botni profilingizga bog\'lang!', true);
+        return;
+      }
+      
+      const parts = data.split(':');
+      const action = parts[0];
+      const productId = parts[1];
+
+      try {
+        await prisma.cartItem.upsert({
+          where: {
+            userId_productId: {
+              userId: session.userId,
+              productId
+            }
+          },
+          create: {
+            userId: session.userId,
+            productId
+          },
+          update: {}
+        });
+
+        this.answerCallbackQuery(queryId, '🛒 Mahsulot savatga qo\'shildi!');
+        
+        if (action === 'buy_now') {
+          await this.sendCart(chatId);
+        } else {
+          this.sendMessage(chatId, `✅ Mahsulot savatingizga qo'shildi! Uni ko'rish va to'lov qilish uchun <b>"🛒 Savatim"</b> bo'limiga o'ting.`);
+        }
+      } catch (e) {
+        this.answerCallbackQuery(queryId, '❌ Xatolik yuz berdi');
+      }
+      return;
+    }
+
+    if (data.startsWith('remove_from_cart:')) {
+      if (!session) return;
+      const cartItemId = data.split(':')[1];
+      try {
+        await prisma.cartItem.delete({
+          where: { id: cartItemId }
+        });
+        this.answerCallbackQuery(queryId, '❌ Mahsulot savatdan o\'chirildi');
+        await this.sendCart(chatId);
+      } catch (e) {
+        this.answerCallbackQuery(queryId, '❌ O\'chirib bo\'lmadi');
+      }
+      return;
+    }
+
+    if (data === 'clear_cart') {
+      if (!session) return;
+      try {
+        await prisma.cartItem.deleteMany({
+          where: { userId: session.userId }
+        });
+        this.answerCallbackQuery(queryId, '🗑️ Savat tozalandi');
+        this.sendMessage(chatId, `Savatingiz tozalandi.`);
+      } catch (e) {
+        this.answerCallbackQuery(queryId, '❌ Xatolik yuz berdi');
+      }
+      return;
+    }
+
+    if (data === 'checkout') {
+      if (!session) return;
+      try {
+        const cartItems = await prisma.cartItem.findMany({
+          where: { userId: session.userId },
+          include: { product: true }
+        });
+
+        if (cartItems.length === 0) {
+          this.answerCallbackQuery(queryId, 'Savat bo\'sh');
+          return;
+        }
+
+        const total = cartItems.reduce((sum, item) => sum + item.product.price, 0);
+        this.answerCallbackQuery(queryId);
+
+        let checkoutText = `💳 <b>Buyurtma rasmiylashtirish:</b>\n\n` +
+          `Jami: ${cartItems.length} ta mahsulot\n` +
+          `Summa: <b>${total.toLocaleString()} so'm</b>\n\n` +
+          `Iltimos, to'lov tizimini tanlang:`;
+
+        const inlineKeyboard = {
+          inline_keyboard: [
+            [
+              { text: 'Click orqali to\'lov', callback_data: 'checkout_pay:CLICK' },
+              { text: 'Paynet orqali to\'lov', callback_data: 'checkout_pay:PAYNET' }
+            ]
+          ]
+        };
+
+        this.sendMessage(chatId, checkoutText, { reply_markup: JSON.stringify(inlineKeyboard) });
+      } catch (e) {
+        this.answerCallbackQuery(queryId, '❌ Xatolik yuz berdi');
+      }
+      return;
+    }
+
+    if (data.startsWith('checkout_pay:')) {
+      if (!session) return;
+      const paymentType = data.split(':')[1];
+      this.answerCallbackQuery(queryId, 'Buyurtma yaratilmoqda...');
+
+      try {
+        const cartItems = await prisma.cartItem.findMany({
+          where: { userId: session.userId },
+          include: { product: true }
+        });
+
+        if (cartItems.length === 0) {
+          this.sendMessage(chatId, `❌ Savatingiz bo'sh. Qayta buyurtma berib bo'lmaydi.`);
+          return;
+        }
+
+        const createdOrders = [];
+        for (const item of cartItems) {
+          const order = await prisma.order.create({
+            data: {
+              userId: session.userId,
+              productId: item.productId,
+              amount: item.product.price,
+              paymentType: paymentType as PaymentType
+            }
+          });
+          createdOrders.push(order);
+
+          // Clear from cart
+          await prisma.cartItem.deleteMany({
+            where: { userId: session.userId, productId: item.productId }
+          });
+        }
+
+        // Get payment instructions
+        const method = await prisma.paymentMethod.findUnique({
+          where: { name: paymentType }
+        });
+
+        const total = cartItems.reduce((sum, item) => sum + item.product.price, 0);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+        let successText = `🎉 <b>Buyurtma muvaffaqiyatli yaratildi!</b>\n\n` +
+          `💰 Jami to'lov: <b>${total.toLocaleString()} so'm</b>\n` +
+          `To'lov usuli: <b>${paymentType}</b>\n\n` +
+          `📝 <b>Yo'riqnoma:</b>\n${method?.instructions || 'Ko\'rsatilgan rekvizitlarga to\'lov qiling.'}\n\n` +
+          `⚠️ <b>MUHIM QADAM:</b> To'lovni amalga oshirgach, to'lov chekini (skrinshot) yuklashingiz kerak. Buning uchun saytdagi kabinetingizga o'ting:\n` +
+          `👉 <a href="${frontendUrl}/dashboard/orders">Buyurtmalarim sahifasiga o'tish</a>`;
+
+        this.sendMessage(chatId, successText);
+      } catch (e) {
+        console.error('Telegram checkout error:', e);
+        this.sendMessage(chatId, `❌ Buyurtma berishda xatolik yuz berdi.`);
+      }
+      return;
+    }
+  }
+
   private async sendWelcomeMessage(chatId: number) {
-    const welcomeText = `👋 <b>iDev-Hub Yordam Botiga xush kelibsiz!</b>\n\n` +
-      `Ushbu bot orqali siz iDev-Hub platformasidagi buyurtmalaringiz holatini bilishingiz, litsenziya kalitlarini olishingiz va yordam so'rashingiz mumkin.\n\n` +
-      `🔍 Profilingizni aniqlashimiz uchun platformada ro'yxatdan o'tgan <b>Email manzilingizni</b> yuboring (masalan: <code>user@idev-hub.com</code>).`;
+    const welcomeText = `👋 <b>iDev-Hub Tizim Yordamchisiga xush kelibsiz!</b>\n\n` +
+      `Ushbu bot orqali siz:\n` +
+      `🛍️ Mahsulotlarni ko'rishingiz\n` +
+      `🛒 Savatingizni boshqarishingiz\n` +
+      `💳 Buyurtmalar berib, kalitlarni tekshirishingiz mumkin.\n\n` +
+      `⚙️ Platforma bilan to'liq sinxronlashish uchun ro'yxatdan o'tgan <b>Email manzilingizni</b> yuboring (masalan: <code>user@idev-hub.com</code>).`;
 
     const keyboard = {
       keyboard: [
-        [{ text: '💳 To\'lov usullari' }, { text: '🚀 Sotib olish ko\'rsatmasi' }],
-        [{ text: '📞 Admin bilan bog\'lanish' }]
+        [{ text: '🛍️ Mahsulotlar' }, { text: '🛒 Savatim' }],
+        [{ text: '🔍 Buyurtmalarim' }, { text: '📞 Admin bilan bog\'lanish' }]
       ],
       resize_keyboard: true
     };
@@ -107,42 +328,113 @@ class TelegramBotService {
     this.sendMessage(chatId, welcomeText, { reply_markup: JSON.stringify(keyboard) });
   }
 
-  private async sendPaymentMethods(chatId: number) {
+  private async sendProducts(chatId: number) {
     try {
-      const methods = await prisma.paymentMethod.findMany();
-      if (methods.length === 0) {
-        this.sendMessage(chatId, `ℹ️ <b>To'lov usullari:</b>\n\nHozirda platformada to'lov usullari sozlanmagan. Iltimos, keyinroq urinib ko'ring.`);
+      const products = await prisma.product.findMany({ where: { active: true } });
+      if (products.length === 0) {
+        this.sendMessage(chatId, `😔 Hozirda sotuvda mahsulotlar mavjud emas.`);
         return;
       }
 
-      let responseText = `💳 <b>Mavjud to'lov usullari:</b>\n\n`;
-      for (const method of methods) {
-        responseText += `✅ <b>${method.name}</b>\n`;
-        if (method.instructions) {
-          responseText += `📝 Yo'riqnoma: ${method.instructions}\n`;
-        }
-        responseText += `\n`;
+      this.sendMessage(chatId, `🛍️ <b>Mavjud premium mahsulotlar:</b>`);
+
+      for (const product of products) {
+        const productText = `📦 <b>${product.name}</b>\n` +
+          `🏷️ Kategoriya: <i>${CATEGORY_LABELS[product.category] || product.category}</i>\n` +
+          `💰 Narxi: <b>${product.price.toLocaleString()} so'm</b>\n` +
+          `📝 <b>Tavsif:</b> ${product.description}`;
+
+        const inlineKeyboard = {
+          inline_keyboard: [
+            [
+              { text: '🛒 Savatga qo\'shish', callback_data: `add_to_cart:${product.id}` },
+              { text: '⚡️ Hozir sotib olish', callback_data: `buy_now:${product.id}` }
+            ]
+          ]
+        };
+
+        this.sendMessage(chatId, productText, { reply_markup: JSON.stringify(inlineKeyboard) });
       }
-      responseText += `To'lovni amalga oshirgach, chek skrinshotini platformadagi checkout sahifasida yuklashni unutmang.`;
-      this.sendMessage(chatId, responseText);
     } catch (err) {
-      this.sendMessage(chatId, `❌ Ma'lumotlarni yuklashda xatolik yuz berdi.`);
+      this.sendMessage(chatId, `❌ Mahsulotlarni yuklashda xatolik yuz berdi.`);
     }
   }
 
-  private async sendPurchaseGuide(chatId: number) {
-    const guideText = `🚀 <b>Sotib olish va kalitlarni olish bo'yicha ko'rsatma:</b>\n\n` +
-      `1️⃣ <b>Katalog</b> bo'limidan o'zingizga kerakli dasturiy vositani tanlang.\n` +
-      `2️⃣ Uni <b>Savatga</b> qo'shing va checkout sahifasiga o'ting.\n` +
-      `3️⃣ Ko'rsatilgan Click yoki Paynet rekvizitlariga to'lov qiling.\n` +
-      `4️⃣ To'lov skrinshotini (chek rasm) saytga yuklab <b>"To'ladim"</b> tugmasini bosing.\n` +
-      `5️⃣ Admin tekshirgandan so'ng (odatda 5-15 daqiqa), profilingizda mahsulotni yuklab olish tugmasi va litsenziya kaliti paydo bo'ladi. Kalitni ushbu bot orqali ham olishingiz mumkin.`;
-    this.sendMessage(chatId, guideText);
+  private async sendCart(chatId: number) {
+    const session = this.sessions[chatId];
+    if (!session) {
+      this.sendMessage(chatId, `⚠️ Iltimos, oldin ro'yxatdan o'tgan email manzilingizni yuborib botni profilingizga bog'lang.`);
+      return;
+    }
+
+    try {
+      const cartItems = await prisma.cartItem.findMany({
+        where: { userId: session.userId },
+        include: { product: true }
+      });
+
+      if (cartItems.length === 0) {
+        this.sendMessage(chatId, `🛒 <b>Sizning savatingiz bo'sh.</b>\n\nMahsulotlar qo'shish uchun <b>"🛍️ Mahsulotlar"</b> bo'limiga o'ting.`);
+        return;
+      }
+
+      let cartText = `🛒 <b>Sizning savatingiz:</b>\n\n`;
+      let total = 0;
+      
+      const inlineRows = [];
+
+      for (const item of cartItems) {
+        cartText += `🔹 <b>${item.product.name}</b> - ${item.product.price.toLocaleString()} so'm\n`;
+        total += item.product.price;
+        
+        // Add delete button next to each item
+        inlineRows.push([{ text: `❌ ${item.product.name} ni o'chirish`, callback_data: `remove_from_cart:${item.id}` }]);
+      }
+
+      cartText += `\n💰 Jami: <b>${total.toLocaleString()} so'm</b>`;
+
+      inlineRows.push([
+        { text: '🗑️ Savatni tozalash', callback_data: 'clear_cart' },
+        { text: '💳 Sotib olish (Checkout)', callback_data: 'checkout' }
+      ]);
+
+      const inlineKeyboard = {
+        inline_keyboard: inlineRows
+      };
+
+      this.sendMessage(chatId, cartText, { reply_markup: JSON.stringify(inlineKeyboard) });
+    } catch (e) {
+      this.sendMessage(chatId, `❌ Savat ma'lumotlarini yuklab bo'lmadi.`);
+    }
+  }
+
+  private async linkProfileByEmail(chatId: number, email: string) {
+    try {
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        this.sendMessage(chatId, `❌ Kechirasiz, <b>${email}</b> manzilli foydalanuvchi topilmadi. Iltimos, platformadagi email manzilingizni to'g'ri kiriting.`);
+        return;
+      }
+
+      // Link session
+      this.sessions[chatId] = { email: user.email, userId: user.id };
+      this.saveSessions();
+
+      let successText = `✅ <b>Profil muvaffaqiyatli bog'landi!</b>\n\n` +
+        `👤 Foydalanuvchi: <b>${user.name}</b>\n` +
+        `✉️ Email: <code>${user.email}</code>\n\n` +
+        `Endi siz ushbu bot orqali savatingizni ko'rishingiz, mahsulotlar sotib olishingiz va buyurtmalar holatini tekshirishingiz mumkin.`;
+
+      this.sendMessage(chatId, successText);
+      await this.checkUserByEmail(chatId, email);
+    } catch (e) {
+      this.sendMessage(chatId, `❌ Profilni tekshirishda xatolik yuz berdi.`);
+    }
   }
 
   private async sendSupportContact(chatId: number) {
     const contactText = `📞 <b>Texnik qo'llab-quvvatlash:</b>\n\n` +
-      `Agar buyurtmangiz tasdiqlanmasdan qolgan bo'lsa yoki savollaringiz bo'lsa, admin bilan bog'laning:\n\n` +
+      `Muammo yuzaga kelgan bo'lsa yoki savollaringiz bo'lsa admin bilan bog'laning:\n\n` +
       `✉️ Email: <b>support@idev-hub.com</b>\n` +
       `Telegram: @idev_support_admin\n` +
       `Ish vaqti: 24/7`;
@@ -166,44 +458,39 @@ class TelegramBotService {
         }
       });
 
-      if (!user) {
-        this.sendMessage(chatId, `❌ Kechirasiz, <b>${email}</b> manzilli foydalanuvchi topilmadi. Iltimos, platformada ro'yxatdan o'tgan email manzilingizni to'g'ri kiriting.`);
-        return;
-      }
+      if (!user) return;
 
-      let responseText = `👤 <b>Assalomu alaykum, ${user.name}!</b>\n\nProfilingiz aniqlandi.\n`;
+      let responseText = `🔍 <b>Xaridlar tarixi (Oxirgi 5 ta):</b>\n\n`;
       
       if (user.blocked) {
-        responseText += `⚠️ <b>Hisobingiz bloklangan.</b> Iltimos, yordam olish uchun admin bilan bog'laning.`;
+        responseText += `⚠️ <b>Hisobingiz bloklangan.</b> Iltimos, admin bilan bog'laning.`;
         this.sendMessage(chatId, responseText);
         return;
       }
 
       if (user.orders.length === 0) {
-        responseText += `ℹ️ Sizda hali hech qanday xarid buyurtmasi mavjud emas. Mahsulotlarni sotib olish uchun saytga kiring.`;
+        responseText += `Sizda hali hech qanday xarid buyurtmasi mavjud emas.`;
         this.sendMessage(chatId, responseText);
         return;
       }
 
-      responseText += `Quyida oxirgi xaridlaringiz holati:\n\n`;
       this.sendMessage(chatId, responseText);
 
-      // Send each order as a separate structured message
       for (const order of user.orders.slice(0, 5)) {
         let orderText = `📦 <b>Mahsulot:</b> ${order.product.name}\n` +
-          `💰 <b>Narxi:</b> ${order.amount.toLocaleString()} so'm\n` +
-          `📅 <b>Sana:</b> ${new Date(order.createdAt).toLocaleDateString()}\n`;
+          `💰 Narxi: ${order.amount.toLocaleString()} so'm\n` +
+          `📅 Sana: ${new Date(order.createdAt).toLocaleDateString()}\n`;
 
         if (order.status === 'PENDING') {
           orderText += `⏳ <b>Holat:</b> To'lov tekshirilmoqda\n\n` +
-            `💡 <i>Muammo bormi?</i> Agar to'lov qilgan bo'lsangiz va status o'zgarmasa, checkout sahifasida chek (skrinshot) yuklaganingizni tekshiring. Admin tez orada tasdiqlaydi.`;
+            `💡 <i>Eslatma:</i> To'lov skrinshotini (chek) yuklaganingizga ishonch hosil qiling. Admin tezda tasdiqlaydi.`;
         } else if (order.status === 'CONFIRMED') {
-          const key = order.manualKey || order.licenseKey?.keyValue || 'Hali biriktirilmagan';
+          const key = order.manualKey || order.licenseKey?.keyValue || 'Biriktirilmagan';
           const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-          orderText += `✅ <b>Holat:</b> To'lov tasdiqlangan\n` +
+          orderText += `✅ <b>Holat:</b> Tasdiqlangan\n` +
             `🔑 <b>Litsenziya kaliti:</b> <code>${key}</code>\n\n` +
-            `💾 Dasturni yuklab olish uchun saytdagi kabinetingizga o'ting:\n` +
-            `👉 <a href="${frontendUrl}/dashboard/orders">Shaxsiy kabinetga o'tish</a>`;
+            `💾 Dasturni yuklash uchun:\n` +
+            `👉 <a href="${frontendUrl}/dashboard/orders">Shaxsiy kabinetga o'ting</a>`;
         } else {
           orderText += `❌ <b>Holat:</b> Bekor qilingan`;
         }
@@ -213,12 +500,10 @@ class TelegramBotService {
 
     } catch (err) {
       console.error('Telegram checkUserByEmail error:', err);
-      this.sendMessage(chatId, `❌ Tizimda xatolik yuz berdi. Iltimos, birozdan so'ng qayta urinib ko'ring.`);
     }
   }
 
   private async handleGeneralText(chatId: number, text: string) {
-    // Try to see if it's an order ID (UUID format or similar)
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (uuidRegex.test(text)) {
       try {
@@ -246,16 +531,37 @@ class TelegramBotService {
           return;
         }
       } catch (e) {
-        // Silently catch
+        // catch
       }
     }
 
-    // Default reply
-    const replyText = `🤖 <b>iDev-Hub Support AI:</b>\n\n` +
-      `Siz yozgan matnni tushuna olmadim. Agar yordam kerak bo'lsa:\n\n` +
-      `1️⃣ Platformada ro'yxatdan o'tgan <b>Email manzilingizni</b> yuboring. Men sizning profil va buyurtmalaringizni tekshirib beraman.\n` +
-      `2️⃣ Quyidagi tugmalar orqali kerakli bo'limga o'ting.`;
+    const replyText = `🤖 <b>iDev-Hub Tizim Yordamchisi:</b>\n\n` +
+      `Siz yuborgan buyruqni tushuna olmadim.\n\n` +
+      `1️⃣ Agar profilni botga hali bog'lamagan bo'lsangiz, tizimga a'zo bo'lgan <b>Email manzilingizni</b> yozib yuboring.\n` +
+      `2️⃣ Quyidagi klaviatura tugmalaridan foydalaning.`;
     this.sendMessage(chatId, replyText);
+  }
+
+  private answerCallbackQuery(callbackQueryId: string, text?: string, showAlert: boolean = false) {
+    const url = `https://api.telegram.org/bot${this.token}/answerCallbackQuery`;
+    const payload = JSON.stringify({
+      callback_query_id: callbackQueryId,
+      text,
+      show_alert: showAlert
+    });
+
+    const req = https.request(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    }, (res) => {
+      res.resume();
+    });
+    req.on('error', () => {});
+    req.write(payload);
+    req.end();
   }
 
   private sendMessage(chatId: number, text: string, options: any = {}) {
@@ -275,7 +581,6 @@ class TelegramBotService {
         'Content-Length': Buffer.byteLength(payload)
       }
     }, (res) => {
-      // Consume response
       res.resume();
     });
 
