@@ -129,7 +129,13 @@ export default function PublicReceiptPage() {
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 bg-accent-gold/10 rounded-full blur-3xl" />
 
         {/* Header */}
-        <div className="text-center pb-6 border-b border-border-default/10">
+        <div className="text-center pb-6 border-b border-border-default/10 relative">
+          <button
+            onClick={() => window.print()}
+            className="absolute right-0 top-0 text-[11px] font-semibold text-accent-gold border border-accent-gold/20 hover:border-accent-gold bg-accent-gold/5 px-2.5 py-1 rounded transition-all duration-300 flex items-center gap-1 print:hidden"
+          >
+            🖨️ Chop etish
+          </button>
           <div className="inline-flex items-center gap-1 text-accent-gold font-mono font-bold text-lg tracking-wider mb-2">
             &lt;/&gt; IDEV-HUB
           </div>
@@ -179,7 +185,7 @@ export default function PublicReceiptPage() {
               <div className="flex justify-between items-center text-sm">
                 <span className="text-text-muted">Qiymati:</span>
                 <span className="font-mono text-accent-gold font-bold">
-                  {order.amount.toLocaleString('uz-UZ')} so&apos;m
+                  ${order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
@@ -265,6 +271,36 @@ export default function PublicReceiptPage() {
           </p>
         </div>
       </Card>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          body {
+            background: white !important;
+            color: black !important;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+          /* Make Card black-and-white print friendly */
+          div[class*="bg-bg-secondary"] {
+            background-color: white !important;
+            border: 1px solid #ccc !important;
+            color: black !important;
+            box-shadow: none !important;
+            backdrop-filter: none !important;
+          }
+          span, h1, h2, h3, h4, p, div, td, th {
+            color: black !important;
+          }
+          div[class*="border-border"], div[class*="border-b"], div[class*="divide-y"] {
+            border-color: #ddd !important;
+          }
+          div[class*="bg-bg-tertiary"], div[class*="bg-green-500"], div[class*="bg-amber-500"] {
+            background-color: #f9f9f9 !important;
+            border: 1px solid #ddd !important;
+          }
+        }
+      `}} />
     </div>
   );
 }

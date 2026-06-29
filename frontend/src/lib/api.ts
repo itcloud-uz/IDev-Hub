@@ -185,7 +185,7 @@ export const updateProduct = (id: string, formData: FormData) =>
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
-export const deleteProduct = (id: string) => api.delete(`/admin/products/${id}`);
+export const deleteProduct = (id: string) => api.delete(`/admin/products/${id}?hard=true`);
 
 export const toggleProduct = (id: string) => api.patch(`/admin/products/${id}/toggle`);
 

@@ -232,7 +232,7 @@ class TelegramBotService {
 
         let checkoutText = `💳 <b>Buyurtma rasmiylashtirish:</b>\n\n` +
           `Jami: ${cartItems.length} ta mahsulot\n` +
-          `Summa: <b>${total.toLocaleString()} so'm</b>\n\n` +
+          `Summa: <b>$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>\n\n` +
           `Iltimos, to'lov tizimini tanlang:`;
 
         const inlineKeyboard = {
@@ -294,7 +294,7 @@ class TelegramBotService {
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
         let successText = `🎉 <b>Buyurtma muvaffaqiyatli yaratildi!</b>\n\n` +
-          `💰 Jami to'lov: <b>${total.toLocaleString()} so'm</b>\n` +
+          `💰 Jami to'lov: <b>$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>\n` +
           `To'lov usuli: <b>${paymentType}</b>\n\n` +
           `📝 <b>Yo'riqnoma:</b>\n${method?.instructions || 'Ko\'rsatilgan rekvizitlarga to\'lov qiling.'}\n\n` +
           `⚠️ <b>MUHIM QADAM:</b> To'lovni amalga oshirgach, to'lov chekini (skrinshot) yuklashingiz kerak. Buning uchun saytdagi kabinetingizga o'ting:\n` +
@@ -341,7 +341,7 @@ class TelegramBotService {
       for (const product of products) {
         const productText = `📦 <b>${product.name}</b>\n` +
           `🏷️ Kategoriya: <i>${CATEGORY_LABELS[product.category] || product.category}</i>\n` +
-          `💰 Narxi: <b>${product.price.toLocaleString()} so'm</b>\n` +
+          `💰 Narxi: <b>$${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>\n` +
           `📝 <b>Tavsif:</b> ${product.description}`;
 
         const inlineKeyboard = {
@@ -384,14 +384,14 @@ class TelegramBotService {
       const inlineRows = [];
 
       for (const item of cartItems) {
-        cartText += `🔹 <b>${item.product.name}</b> - ${item.product.price.toLocaleString()} so'm\n`;
+        cartText += `🔹 <b>${item.product.name}</b> - $${item.product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
         total += item.product.price;
         
         // Add delete button next to each item
         inlineRows.push([{ text: `❌ ${item.product.name} ni o'chirish`, callback_data: `remove_from_cart:${item.id}` }]);
       }
 
-      cartText += `\n💰 Jami: <b>${total.toLocaleString()} so'm</b>`;
+      cartText += `\n💰 Jami: <b>$${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>`;
 
       inlineRows.push([
         { text: '🗑️ Savatni tozalash', callback_data: 'clear_cart' },
@@ -478,7 +478,7 @@ class TelegramBotService {
 
       for (const order of user.orders.slice(0, 5)) {
         let orderText = `📦 <b>Mahsulot:</b> ${order.product.name}\n` +
-          `💰 Narxi: ${order.amount.toLocaleString()} so'm\n` +
+          `💰 Narxi: $${order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n` +
           `📅 Sana: ${new Date(order.createdAt).toLocaleDateString()}\n`;
 
         if (order.status === 'PENDING') {
@@ -516,7 +516,7 @@ class TelegramBotService {
           let orderText = `🔍 <b>Buyurtma topildi!</b>\n\n` +
             `👤 Foydalanuvchi: ${order.user.name}\n` +
             `📦 Mahsulot: ${order.product.name}\n` +
-            `💰 Narxi: ${order.amount.toLocaleString()} so'm\n`;
+            `💰 Narxi: $${order.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n`;
 
           if (order.status === 'PENDING') {
             orderText += `⏳ Holat: Kutilmoqda (to'lov tekshirilmoqda)`;

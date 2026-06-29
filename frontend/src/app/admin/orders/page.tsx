@@ -82,7 +82,7 @@ export default function AdminOrdersPage() {
   };
 
   const formatPrice = (price: number) =>
-    price.toLocaleString('uz-UZ').replace(/,/g, ',') + " so'm";
+    "$" + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const getStatusVariant = (status: string) => {
     if (status === 'CONFIRMED') return 'success';
@@ -167,8 +167,19 @@ export default function AdminOrdersPage() {
                   {/* Expanded Detail Box */}
                   {isExpanded && (
                     <div className="px-5 pb-5 pt-2 border-t border-border-default/30 bg-bg-secondary/20 space-y-6 animate-fade-in">
+                      <div className="flex justify-end">
+                        <a
+                          href={`/receipt/${order.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-accent-gold border border-accent-gold/20 hover:border-accent-gold bg-accent-gold/5 px-2.5 py-1.5 rounded transition-all duration-300"
+                        >
+                          🖨️ Chop etish / PDF olish
+                        </a>
+                      </div>
+                      
                       {/* Flex grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-sans">
                         {/* Left: receipt image screenshot */}
                         <div>
                           <h4 className="text-sm font-semibold font-heading text-accent-gold mb-3 flex items-center gap-1.5">

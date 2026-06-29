@@ -250,7 +250,7 @@ export default function AdminProductsPage() {
   };
 
   const formatPrice = (price: number) =>
-    price.toLocaleString('uz-UZ').replace(/,/g, ',') + " so'm";
+    "$" + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <AdminLayout>
@@ -396,9 +396,10 @@ export default function AdminProductsPage() {
             />
 
             <Input
-              label="Narxi (so'mda)"
+              label="Narxi ($)"
               type="number"
-              placeholder="150000"
+              step="0.01"
+              placeholder="29.99"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               disabled={submittingProduct}

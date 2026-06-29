@@ -232,7 +232,15 @@ router.delete('/products/:id', async (req: Request, res: Response) => {
     }
 
     if (hard === 'true') {
-      await prisma.product.delete({ where: { id: req.params.id } });
+      const productId = req.params.id;
+      
+      // Cascade delete referencing records first
+      await prisma.cartItem.deleteMany({ where: { productId } });
+      await prisma.licenseKey.deleteMany({ where: { productId } });
+      await prisma.order.deleteMany({ where: { productId } });
+      
+      // Delete product
+      await prisma.product.delete({ where: { id: productId } });
       res.json({ message: 'Product permanently deleted' });
     } else {
       await prisma.product.update({
@@ -540,7 +548,11 @@ router.patch('/orders/:id/manual-key', async (req: Request, res: Response) => {
 
     const updatedOrder = await prisma.order.update({
       where: { id: req.params.id },
-      data: { manualKey: key },
+      data: { 
+        manualKey: key,
+        status: 'CONFIRMED',
+        confirmedAt: new Date()
+      },
       include: {
         user: {
           select: { id: true, name: true, email: true },

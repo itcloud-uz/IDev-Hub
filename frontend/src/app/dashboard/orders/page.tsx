@@ -70,7 +70,7 @@ export default function OrdersPage() {
   };
 
   const formatPrice = (price: number) =>
-    price.toLocaleString('uz-UZ').replace(/,/g, ',') + " so'm";
+    "$" + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <DashboardLayout>
@@ -222,7 +222,15 @@ export default function OrdersPage() {
           return (
             <div className="space-y-6 text-sm text-text-primary">
               {/* Print Layout Header */}
-              <div className="text-center pb-4 border-b border-border-default/15 font-mono">
+              <div className="text-center pb-4 border-b border-border-default/15 font-mono relative">
+                <a
+                  href={`/receipt/${order.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute right-0 top-0 text-[10px] font-semibold text-accent-gold border border-accent-gold/20 hover:border-accent-gold bg-accent-gold/5 px-2 py-1 rounded transition-colors"
+                >
+                  🖨️ Chop etish
+                </a>
                 <span className="text-accent-gold font-bold tracking-wider text-base block">&lt;/&gt; IDEV-HUB RECEIPT</span>
                 <span className="text-[10px] text-text-muted block mt-0.5">Tranzaksiya ID: {order.id}</span>
               </div>

@@ -64,7 +64,7 @@ export default function CartPage() {
   const total = cartItems.reduce((acc, item) => acc + item.product.price, 0);
 
   const formatPrice = (price: number) =>
-    price.toLocaleString('uz-UZ').replace(/,/g, ',') + " so'm";
+    "$" + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <DashboardLayout>
