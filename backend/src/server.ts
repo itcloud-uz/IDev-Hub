@@ -14,6 +14,7 @@ import paymentMethodRoutes from './routes/paymentMethods';
 import blogRoutes from './routes/blog';
 import adminRoutes from './routes/admin';
 import { errorHandler } from './middleware/errorHandler';
+import { telegramBotService } from './services/telegramBot';
 
 const app = express();
 const PORT = parseInt(process.env.BACKEND_PORT || '5000', 10);
@@ -70,6 +71,9 @@ app.listen(PORT, () => {
   console.log(`🚀 iDev-Hub Backend is running on http://localhost:${PORT}`);
   console.log(`📦 API available at http://localhost:${PORT}/api`);
   console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Start Telegram Support Bot
+  telegramBotService.start();
 });
 
 export default app;
