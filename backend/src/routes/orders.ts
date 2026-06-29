@@ -204,4 +204,41 @@ router.get('/:id/download', requireAuth, async (req: Request, res: Response) => 
   }
 });
 
+// GET /api/orders/public-receipt/:id (Public endpoint for QR code validation)
+router.get('/public-receipt/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        product: {
+          select: {
+            name: true,
+            category: true,
+            price: true,
+            description: true
+          }
+        },
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
+        licenseKey: true
+      }
+    });
+
+    if (!order) {
+      res.status(404).json({ error: 'Buyurtma topilmadi' });
+      return;
+    }
+
+    res.json({ order });
+  } catch (error) {
+    console.error('Public receipt error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

@@ -233,6 +233,8 @@ export const toggleBlockUser = (id: string) => api.patch(`/admin/users/${id}/blo
 
 export const getAdminUser = (id: string) => api.get(`/admin/users/${id}`);
 
+export const getPublicReceipt = (id: string) => api.get(`/orders/public-receipt/${id}`);
+
 export const getFileUrl = (url: string) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;

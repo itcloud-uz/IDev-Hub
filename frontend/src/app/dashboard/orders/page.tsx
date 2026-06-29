@@ -9,13 +9,16 @@ import Button from '@/components/ui/Button';
 import { getMyOrders, downloadFile } from '@/lib/api';
 import type { Order } from '@/types';
 import { STATUS_LABELS } from '@/types';
-import { HiArrowDownTray, HiClipboardDocumentCheck, HiClipboard, HiCube, HiShieldCheck } from 'react-icons/hi2';
+import { HiArrowDownTray, HiClipboardDocumentCheck, HiClipboard, HiCube, HiShieldCheck, HiOutlineQrCode, HiCheck } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
+import Modal from '@/components/ui/Modal';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<Order | null>(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
   async function loadOrders() {
     try {
@@ -144,10 +147,24 @@ export default function OrdersPage() {
                   )}
 
                   {/* Actions */}
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-                    <span className="text-xs text-text-muted">
-                      To&apos;lov usuli: <span className="font-mono font-semibold text-text-secondary">{order.paymentType}</span>
-                    </span>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-border-default/15">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-xs text-text-muted">
+                        To&apos;lov: <span className="font-mono font-semibold text-text-secondary">{order.paymentType}</span>
+                      </span>
+                      {(order.status === 'CONFIRMED' || order.status === 'PENDING') && (
+                        <button
+                          onClick={() => {
+                            setSelectedOrderForReceipt(order);
+                            setIsReceiptModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] text-accent-gold hover:text-accent-gold-light border border-accent-gold/20 hover:border-accent-gold px-2.5 py-1.5 rounded transition-all duration-300 bg-accent-gold/5"
+                        >
+                          <HiOutlineQrCode className="w-3.5 h-3.5" />
+                          Chek va QR
+                        </button>
+                      )}
+                    </div>
 
                     {order.status === 'CONFIRMED' ? (
                       <Button
@@ -161,11 +178,11 @@ export default function OrdersPage() {
                       </Button>
                     ) : order.status === 'PENDING' ? (
                       <span className="text-xs text-warning bg-amber-500/10 border border-warning/20 px-3 py-1 rounded">
-                        Admin to&apos;lovni tasdiqlashini kutilmoqda.
+                        Tasdiqlanish kutilmoqda
                       </span>
                     ) : (
                       <span className="text-xs text-error bg-red-500/10 border border-error/20 px-3 py-1 rounded">
-                        Buyurtma bekor qilingan.
+                        Bekor qilingan
                       </span>
                     )}
                   </div>
@@ -184,6 +201,95 @@ export default function OrdersPage() {
           </div>
         )}
       </div>
+
+      {/* ═══════════ RECEIPT / INVOICE MODAL ═══════════ */}
+      <Modal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        title="Xarid Kvitansiyasi & Ruxsatnoma"
+        size="md"
+      >
+        {selectedOrderForReceipt && (() => {
+          const order = selectedOrderForReceipt;
+          const key = order.manualKey || order.licenseKey?.keyValue || '';
+          const receiptUrl = typeof window !== 'undefined' 
+            ? `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}/receipt/${order.id}`
+            : `http://localhost:3000/receipt/${order.id}`;
+          
+          const qrData = `Xarid cheki: ${receiptUrl}\n\nLitsenziya kaliti:\n${key || 'To\'lov tasdiqlangach biriktiriladi'}`;
+          const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}`;
+
+          return (
+            <div className="space-y-6 text-sm text-text-primary">
+              {/* Print Layout Header */}
+              <div className="text-center pb-4 border-b border-border-default/15 font-mono">
+                <span className="text-accent-gold font-bold tracking-wider text-base block">&lt;/&gt; IDEV-HUB RECEIPT</span>
+                <span className="text-[10px] text-text-muted block mt-0.5">Tranzaksiya ID: {order.id}</span>
+              </div>
+
+              {/* Details Grid */}
+              <div className="space-y-3 bg-bg-tertiary/40 border border-border-default/10 p-4 rounded-xl">
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Dastur nomi:</span>
+                  <span className="font-semibold">{order.product?.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Narxi:</span>
+                  <span className="font-mono text-accent-gold font-bold">{formatPrice(order.amount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Sana:</span>
+                  <span>{new Date(order.createdAt).toLocaleString('uz-UZ')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">To&apos;lov turi:</span>
+                  <span className="font-mono font-semibold">{order.paymentType}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-secondary">Tranzaksiya holati:</span>
+                  <Badge variant={getStatusVariant(order.status)}>
+                    {STATUS_LABELS[order.status]}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* QR Code Container */}
+              <div className="flex flex-col items-center justify-center p-5 bg-bg-tertiary/20 border border-border-default/10 rounded-xl text-center">
+                <div className="bg-white p-2.5 rounded-lg shadow-lg mb-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={qrImageUrl} 
+                    alt="Ruxsatnoma QR kodi" 
+                    className="w-[150px] h-[150px]"
+                  />
+                </div>
+                <span className="text-xs font-semibold text-accent-gold flex items-center gap-1">
+                  <HiOutlineQrCode className="w-4 h-4" /> Maxsus Ruxsatnoma QR Kodi
+                </span>
+                <p className="text-[10px] text-text-muted mt-1 leading-relaxed max-w-xs">
+                  Kamera yoki QR skaner orqali skrinshotni skanerlang. U litsenziya kalitlari ro&apos;yxati va xarid havolasini o&apos;z ichiga oladi.
+                </p>
+              </div>
+
+              {/* Key block inside invoice */}
+              {order.status === 'CONFIRMED' && key && (
+                <div className="p-3.5 bg-green-500/5 border border-success/30 rounded-xl space-y-1">
+                  <span className="text-[10px] text-success/70 font-mono block">FAOL LITSENZIYA KALITI</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-mono text-sm text-success font-semibold tracking-wide truncate select-all">{key}</span>
+                    <button 
+                      onClick={() => handleCopyKey(key)}
+                      className="text-[10px] text-success hover:bg-success/15 border border-success/20 px-2 py-1 rounded transition-colors"
+                    >
+                      Nusxa
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </Modal>
     </DashboardLayout>
   );
 }
