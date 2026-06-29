@@ -17,9 +17,10 @@ const api = axios.create({
   },
 });
 
-// Request interceptor — attach access token
+// Request interceptor — attach access token and set dynamic baseURL
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (typeof window !== 'undefined') {
+    config.baseURL = process.env.NEXT_PUBLIC_API_URL || `${window.location.protocol}//${window.location.hostname}:5000/api`;
     const token = localStorage.getItem('accessToken');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
