@@ -15,8 +15,8 @@ const CustomNeuralDot = (props: any) => {
   if (cx === undefined || cy === undefined) return null;
   return (
     <g>
-      <circle cx={cx} cy={cy} r={8} fill="rgba(239, 68, 68, 0.15)" stroke="rgba(239, 68, 68, 0.4)" strokeWidth={1} />
-      <circle cx={cx} cy={cy} r={5} fill="none" stroke="rgba(255, 100, 100, 0.8)" strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={8} fill="rgba(212, 175, 55, 0.15)" stroke="rgba(212, 175, 55, 0.4)" strokeWidth={1} />
+      <circle cx={cx} cy={cy} r={5} fill="none" stroke="rgba(243, 229, 171, 0.8)" strokeWidth={1} />
       <circle cx={cx} cy={cy} r={2.5} fill="#ffffff" />
     </g>
   );
@@ -71,12 +71,12 @@ export default function AdminDashboardPage() {
     <AdminLayout>
       <div className="space-y-8 animate-fade-in">
         {/* Header */}
-        <div className="border-b border-red-500/20 pb-4">
+        <div className="border-b border-accent-gold/25 pb-4">
           <div className="flex items-center gap-2 mb-1">
-            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_6px_rgba(239,68,68,0.8)]" />
-            <span className="text-[10px] font-mono text-error tracking-widest uppercase">root_authority // portal_control</span>
+            <span className="h-2 w-2 rounded-full bg-accent-gold animate-pulse shadow-[0_0_6px_rgba(212,175,55,0.8)]" />
+            <span className="text-[10px] font-mono text-accent-gold tracking-widest uppercase">root_authority // portal_control</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-amber-500 to-red-400 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-gold via-accent-gold-light to-accent-gold tracking-tight">
             Admin Panel Dashboard
           </h1>
           <p className="text-text-muted text-xs font-mono mt-1">
@@ -86,9 +86,9 @@ export default function AdminDashboardPage() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-red-500/5 to-transparent rounded-bl-full pointer-events-none" />
-            <div className="p-2.5 rounded bg-red-500/10 text-error border border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.08)]">
+          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-accent-gold/30 hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-accent-gold/5 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="p-2.5 rounded bg-accent-gold/10 text-accent-gold border border-accent-gold/20 shadow-[0_0_10px_rgba(212,175,55,0.08)]">
               <HiUsers className="w-5 h-5" />
             </div>
             <div>
@@ -97,9 +97,9 @@ export default function AdminDashboardPage() {
             </div>
           </Card>
 
-          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-amber-500/30 hover:shadow-[0_0_20px_rgba(245,158,11,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-amber-500/5 to-transparent rounded-bl-full pointer-events-none" />
-            <div className="p-2.5 rounded bg-amber-500/10 text-warning border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.08)]">
+          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-accent-gold/30 hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-accent-gold/5 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="p-2.5 rounded bg-accent-gold/10 text-accent-gold border border-accent-gold/20 shadow-[0_0_10px_rgba(212,175,55,0.08)]">
               <HiShoppingCart className="w-5 h-5" />
             </div>
             <div>
@@ -108,9 +108,9 @@ export default function AdminDashboardPage() {
             </div>
           </Card>
 
-          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-green-500/30 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-500/5 to-transparent rounded-bl-full pointer-events-none" />
-            <div className="p-2.5 rounded bg-green-500/10 text-success border border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.08)]">
+          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-accent-gold/30 hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-accent-gold/5 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="p-2.5 rounded bg-accent-gold/10 text-accent-gold border border-accent-gold/20 shadow-[0_0_10px_rgba(212,175,55,0.08)]">
               <HiCurrencyDollar className="w-5 h-5" />
             </div>
             <div>
@@ -121,9 +121,9 @@ export default function AdminDashboardPage() {
             </div>
           </Card>
 
-          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-blue-500/30 hover:shadow-[0_0_20px_rgba(59,130,246,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-500/5 to-transparent rounded-bl-full pointer-events-none" />
-            <div className="p-2.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.08)]">
+          <Card hoverGlow={false} className="relative overflow-hidden bg-bg-secondary/40 border border-border-default/60 hover:border-accent-gold/30 hover:shadow-[0_0_20px_rgba(212,175,55,0.08)] transition-all duration-300 flex items-center gap-4 py-5">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-accent-gold/5 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="p-2.5 rounded bg-accent-gold/10 text-accent-gold border border-accent-gold/20 shadow-[0_0_10px_rgba(212,175,55,0.08)]">
               <HiBriefcase className="w-5 h-5" />
             </div>
             <div>
@@ -140,7 +140,7 @@ export default function AdminDashboardPage() {
           {/* Revenue Chart */}
           <Card className="lg:col-span-2 bg-bg-secondary/30 border border-border-default/60 p-6 flex flex-col shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
             <div className="flex items-center gap-2 mb-6 border-b border-border-default/20 pb-2">
-              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <div className="h-2 w-2 rounded-full bg-accent-gold animate-pulse" />
               <h3 className="font-heading text-base font-bold text-accent-gold">
                 Kirim Dinamikasi (Oylar kesimida)
               </h3>
@@ -151,23 +151,23 @@ export default function AdminDashboardPage() {
                 <AreaChart data={revenueData}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0}/>
+                      <stop offset="5%" stopColor="#D4AF37" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#D4AF37" stopOpacity={0.0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2A2A35" vertical={false} />
-                  <XAxis dataKey="month" stroke="#8A8694" style={{ fontSize: 12, fontFamily: 'monospace' }} />
-                  <YAxis stroke="#8A8694" style={{ fontSize: 12, fontFamily: 'monospace' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#242B3D" vertical={false} />
+                  <XAxis dataKey="month" stroke="#9CA3AF" style={{ fontSize: 12, fontFamily: 'monospace' }} />
+                  <YAxis stroke="#9CA3AF" style={{ fontSize: 12, fontFamily: 'monospace' }} />
                   <Tooltip
-                    contentStyle={{ background: '#12121A', borderColor: '#EF4444', color: '#F0EDE6', fontFamily: 'monospace' }}
-                    labelStyle={{ color: '#EF4444' }}
+                    contentStyle={{ background: '#151924', borderColor: '#D4AF37', color: '#F4F4F6', fontFamily: 'monospace' }}
+                    labelStyle={{ color: '#D4AF37' }}
                   />
                   {/* Thick glowing synapse line */}
                   <Area
                     type="monotone"
                     dataKey="revenue"
                     name="Daromad"
-                    stroke="rgba(239, 68, 68, 0.25)"
+                    stroke="rgba(212, 175, 55, 0.25)"
                     strokeWidth={6}
                     fill="url(#colorRevenue)"
                     activeDot={false}
@@ -178,11 +178,11 @@ export default function AdminDashboardPage() {
                     type="monotone"
                     dataKey="revenue"
                     name="Daromad"
-                    stroke="#EF4444"
+                    stroke="#D4AF37"
                     strokeWidth={2}
                     fill="none"
                     dot={<CustomNeuralDot />}
-                    activeDot={{ r: 7, stroke: '#FFFFFF', strokeWidth: 2, fill: '#EF4444' }}
+                    activeDot={{ r: 7, stroke: '#FFFFFF', strokeWidth: 2, fill: '#D4AF37' }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -192,7 +192,7 @@ export default function AdminDashboardPage() {
           {/* Top Products / Info list */}
           <Card className="lg:col-span-1 bg-bg-secondary/30 border border-border-default/60 p-6 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
             <div className="flex items-center gap-2 mb-4 border-b border-border-default/20 pb-2">
-              <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              <div className="h-2 w-2 rounded-full bg-accent-gold animate-pulse" />
               <h3 className="font-heading text-base font-bold text-accent-gold">
                 Tezkor Sozlamalar / Yordam
               </h3>
@@ -216,7 +216,7 @@ export default function AdminDashboardPage() {
         {/* Recent Orders table */}
         <Card className="bg-bg-secondary/30 border border-border-default/60 p-6 shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
           <div className="flex items-center gap-2 mb-4 border-b border-border-default/20 pb-2">
-            <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
+            <div className="h-2 w-2 rounded-full bg-accent-gold animate-pulse shadow-[0_0_5px_rgba(212,175,55,0.8)]" />
             <h3 className="font-heading text-base font-bold text-accent-gold">
               So&apos;nggi Xarid Buyurtmalari
             </h3>
@@ -268,3 +268,4 @@ export default function AdminDashboardPage() {
     </AdminLayout>
   );
 }
+

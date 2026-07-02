@@ -58,10 +58,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-bg-primary flex flex-col relative overflow-hidden">
       {/* Interactive nodes background */}
       <div className="absolute inset-0 opacity-[0.12] pointer-events-none z-0">
-        <MatrixRain color="red" />
+        <MatrixRain color="gold" />
       </div>
       <div className="absolute inset-0 opacity-[0.10] pointer-events-none z-0">
-        <ParticleNetwork color="red" />
+        <ParticleNetwork color="gold" />
       </div>
 
       <Navbar />
@@ -71,19 +71,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar */}
             <aside className="w-full md:w-64 flex-shrink-0 flex flex-col">
-              <div className="bg-bg-secondary/70 backdrop-blur-md border border-red-500/20 rounded-lg p-4 space-y-1 relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] overflow-hidden group hover:border-red-500/40 transition-colors duration-300 h-full flex-grow">
+              <div className="bg-bg-secondary/70 backdrop-blur-md border border-accent-gold/20 rounded-lg p-4 space-y-1 relative shadow-[0_4px_30px_rgba(0,0,0,0.4)] overflow-hidden group hover:border-accent-gold/40 transition-colors duration-300 h-full flex-grow">
                 {/* macOS control dots */}
                 <div className="flex items-center justify-between pb-3 border-b border-border-default/20 mb-3">
                   <div className="flex space-x-1.5">
-                    <span className="w-2 h-2 rounded-full bg-red-500/80 shadow-[0_0_6px_rgba(239,68,68,0.4)]" />
+                    <span className="w-2 h-2 rounded-full bg-accent-gold/80 shadow-[0_0_6px_rgba(212,175,55,0.4)]" />
                     <span className="w-2 h-2 rounded-full bg-yellow-500/80 shadow-[0_0_6px_rgba(234,179,8,0.4)]" />
                     <span className="w-2 h-2 rounded-full bg-green-500/80 shadow-[0_0_6px_rgba(34,197,94,0.4)]" />
                   </div>
-                  <span className="text-[9px] font-mono text-error">sudo - admin.sh</span>
+                  <span className="text-[9px] font-mono text-accent-gold">sudo - admin.sh</span>
                 </div>
                 
-                <div className="px-3 py-2 bg-red-500/5 rounded border border-red-500/10 mb-3 font-mono">
-                  <span className="inline-block text-[9px] bg-red-500/15 text-error px-1.5 py-0.5 rounded font-heading font-semibold uppercase tracking-wider mb-1">
+                <div className="px-3 py-2 bg-accent-gold/5 rounded border border-accent-gold/10 mb-3 font-mono">
+                  <span className="inline-block text-[9px] bg-accent-gold/15 text-accent-gold px-1.5 py-0.5 rounded font-heading font-semibold uppercase tracking-wider mb-1">
                     ROOT_ACCESS
                   </span>
                   <p className="text-text-primary text-xs font-semibold truncate mt-0.5"># {user?.name}</p>
@@ -98,18 +98,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       href={link.path}
                       className={`flex items-center gap-3 px-4 py-2.5 rounded text-sm font-medium transition-all duration-200 ${
                         active
-                          ? 'bg-red-500/15 text-error border-l-2 border-red-500 pl-3.5 shadow-[inset_0_0_10px_rgba(239,68,68,0.08)]'
+                          ? 'bg-accent-gold/15 text-accent-gold border-l-2 border-accent-gold pl-3.5 shadow-[inset_0_0_10px_rgba(212,175,55,0.08)]'
                           : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/60'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${active ? 'text-error' : 'text-text-muted'}`} />
+                      <Icon className={`w-4 h-4 ${active ? 'text-accent-gold' : 'text-text-muted'}`} />
                       <span className="font-mono text-xs">{link.name}</span>
                     </Link>
                   );
                 })}
                 <button
                   onClick={logout}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 rounded text-sm font-medium text-error hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 rounded text-sm font-medium text-error hover:bg-accent-gold/10 hover:text-accent-gold transition-colors"
                 >
                   <HiArrowLeftOnRectangle className="w-4 h-4" />
                   <span className="font-mono text-xs">Chiqish</span>

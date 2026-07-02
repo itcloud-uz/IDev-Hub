@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Cinzel } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
@@ -10,9 +10,9 @@ const inter = Inter({
   display: 'swap',
 });
 
-const cinzel = Cinzel({
+const outfit = Outfit({
   subsets: ['latin'],
-  variable: '--font-cinzel',
+  variable: '--font-heading',
   display: 'swap',
 });
 
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uz" className={`${inter.variable} ${cinzel.variable}`}>
+    <html lang="uz" className={`${inter.variable} ${outfit.variable}`}>
       <body className="bg-bg-primary text-text-primary font-body antialiased min-h-screen">
         <AuthProvider>
           {children}

@@ -1,5 +1,6 @@
 'use client';
 
+// Modern Gold Theme Implementation
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Card } from '@/components/ui/Card';
