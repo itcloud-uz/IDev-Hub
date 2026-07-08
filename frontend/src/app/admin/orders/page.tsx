@@ -6,7 +6,9 @@ import { Card } from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { getAdminOrders, confirmOrder, cancelOrder, setManualKey, getFileUrl } from '@/lib/api';
+import Modal from '@/components/ui/Modal';
+import Select from '@/components/ui/Select';
+import { getAdminOrders, confirmOrder, cancelOrder, setManualKey, getFileUrl, deleteOrder, updateOrder } from '@/lib/api';
 import type { Order } from '@/types';
 import { STATUS_LABELS } from '@/types';
 import { HiCheck, HiXMark, HiPhoto, HiOutlineLockOpen } from 'react-icons/hi2';
@@ -21,6 +23,15 @@ export default function AdminOrdersPage() {
   // Manual key state
   const [mKey, setMKey] = useState('');
   const [submittingKey, setSubmittingKey] = useState(false);
+
+  // Edit order modal states
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editOrderId, setEditOrderId] = useState('');
+  const [editAmount, setEditAmount] = useState('');
+  const [editStatus, setEditStatus] = useState('');
+  const [editPaymentType, setEditPaymentType] = useState('');
+  const [editManualKey, setEditManualKey] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   async function loadOrders() {
     try {
@@ -78,6 +89,52 @@ export default function AdminOrdersPage() {
       toast.error('Kalitni biriktirib bo\'lmadi');
     } finally {
       setSubmittingKey(false);
+    }
+  };
+
+  const handleOpenEdit = (order: Order) => {
+    setEditOrderId(order.id);
+    setEditAmount(String(order.amount));
+    setEditStatus(order.status);
+    setEditPaymentType(order.paymentType);
+    setEditManualKey(order.manualKey || '');
+    setIsEditOpen(true);
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editAmount || parseFloat(editAmount) <= 0) {
+      toast.error('Miqdor musbat son bo\'lishi shart');
+      return;
+    }
+    setUpdating(true);
+    try {
+      await updateOrder(editOrderId, {
+        amount: parseFloat(editAmount),
+        status: editStatus,
+        paymentType: editPaymentType,
+        manualKey: editManualKey,
+      });
+      toast.success('Buyurtma tahrirlandi');
+      setIsEditOpen(false);
+      loadOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error('Tahrirlashda xatolik');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Haqiqatdan ham ushbu buyurtmani o\'chirmoqchimisiz?')) return;
+    try {
+      await deleteOrder(id);
+      toast.success('Buyurtma o\'chirildi');
+      loadOrders();
+    } catch (err) {
+      console.error(err);
+      toast.error('O\'chirishda xatolik');
     }
   };
 
@@ -223,9 +280,9 @@ export default function AdminOrdersPage() {
                         </div>
                       </div>
 
-                      {/* Main action buttons for PENDING orders */}
-                      {order.status === 'PENDING' && (
-                        <div className="flex items-center gap-3 border-t border-border-default/20 pt-4 mt-4">
+                      {/* Action buttons */}
+                      <div className="flex flex-wrap items-center gap-3 border-t border-border-default/20 pt-4 mt-4">
+                        {order.status === 'PENDING' && (
                           <Button
                             variant="primary"
                             onClick={() => handleConfirm(order.id)}
@@ -234,15 +291,34 @@ export default function AdminOrdersPage() {
                             <HiCheck className="w-5 h-5 mr-1" />
                             To&apos;lovni Tasdiqlash
                           </Button>
+                        )}
+                        
+                        {(order.status === 'PENDING' || order.status === 'CONFIRMED') && (
                           <Button
                             variant="danger"
                             onClick={() => handleCancel(order.id)}
                           >
                             <HiXMark className="w-5 h-5 mr-1" />
-                            Rad etish (Bekor qilish)
+                            Bekor qilish (Rad etish)
                           </Button>
-                        </div>
-                      )}
+                        )}
+
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleOpenEdit(order)}
+                          className="bg-blue-600 hover:bg-blue-500 border-blue-600 hover:border-blue-500 text-white"
+                        >
+                          Tahrirlash
+                        </Button>
+
+                        <Button
+                          variant="danger"
+                          onClick={() => handleDelete(order.id)}
+                          className="bg-red-700 hover:bg-red-600 border-red-700 hover:border-red-600 text-white"
+                        >
+                          O&apos;chirish
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </Card>
@@ -254,6 +330,60 @@ export default function AdminOrdersPage() {
             Buyurtmalar mavjud emas.
           </div>
         )}
+
+        {/* ═══════════ EDIT ORDER MODAL ═══════════ */}
+        <Modal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          title="Buyurtmani Tahrirlash"
+        >
+          <form onSubmit={handleUpdate} className="space-y-4">
+            <Input
+              label="Summa ($)"
+              type="number"
+              step="0.01"
+              value={editAmount}
+              onChange={(e) => setEditAmount(e.target.value)}
+              disabled={updating}
+              required
+            />
+
+            <Select
+              label="To'lov Turi"
+              value={editPaymentType}
+              onChange={(e) => setEditPaymentType(e.target.value)}
+              disabled={updating}
+              options={[
+                { value: 'CLICK', label: 'CLICK' },
+                { value: 'PAYNET', label: 'PAYNET' }
+              ]}
+            />
+
+            <Select
+              label="Buyurtma Holati"
+              value={editStatus}
+              onChange={(e) => setEditStatus(e.target.value)}
+              disabled={updating}
+              options={[
+                { value: 'PENDING', label: 'Kutilmoqda (PENDING)' },
+                { value: 'CONFIRMED', label: 'Tasdiqlangan (CONFIRMED)' },
+                { value: 'CANCELLED', label: 'Bekor qilingan (CANCELLED)' }
+              ]}
+            />
+
+            <Input
+              label="Litsenziya kaliti (Qo'lda)"
+              value={editManualKey}
+              onChange={(e) => setEditManualKey(e.target.value)}
+              disabled={updating}
+              placeholder="Biriktirilmagan"
+            />
+
+            <Button type="submit" className="w-full mt-6" isLoading={updating}>
+              Yangilashni saqlash
+            </Button>
+          </form>
+        </Modal>
       </div>
     </AdminLayout>
   );

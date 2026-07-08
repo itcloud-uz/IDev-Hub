@@ -210,6 +210,11 @@ export const cancelOrder = (id: string) => api.patch(`/admin/orders/${id}/cancel
 export const setManualKey = (orderId: string, key: string) =>
   api.patch(`/admin/orders/${orderId}/manual-key`, { key });
 
+export const deleteOrder = (id: string) => api.delete(`/admin/orders/${id}`);
+
+export const updateOrder = (id: string, data: { amount?: number; status?: string; paymentType?: string; manualKey?: string }) =>
+  api.put(`/admin/orders/${id}`, data);
+
 export const updatePaymentMethod = (id: string, formData: FormData) =>
   api.put(`/admin/payment-methods/${id}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

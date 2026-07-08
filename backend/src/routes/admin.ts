@@ -570,6 +570,79 @@ router.patch('/orders/:id/manual-key', async (req: Request, res: Response) => {
   }
 });
 
+// DELETE /orders/:id — delete order
+router.delete('/orders/:id', async (req: Request, res: Response) => {
+  try {
+    const order = await prisma.order.findUnique({ where: { id: req.params.id } });
+
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    // Free up license keys if it was confirmed
+    if (order.status === 'CONFIRMED') {
+      await prisma.licenseKey.updateMany({
+        where: { orderId: order.id },
+        data: { used: false, orderId: null },
+      });
+    }
+
+    await prisma.order.delete({ where: { id: req.params.id } });
+
+    res.json({ message: 'Order deleted successfully' });
+  } catch (error) {
+    console.error('Delete order error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /orders/:id — update order details
+router.put('/orders/:id', async (req: Request, res: Response) => {
+  try {
+    const { amount, status, paymentType, manualKey } = req.body;
+
+    const order = await prisma.order.findUnique({ where: { id: req.params.id } });
+
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    // Free up license keys if status is changing from CONFIRMED to something else
+    if (order.status === 'CONFIRMED' && status && status !== 'CONFIRMED') {
+      await prisma.licenseKey.updateMany({
+        where: { orderId: order.id },
+        data: { used: false, orderId: null },
+      });
+    }
+
+    const updatedOrder = await prisma.order.update({
+      where: { id: req.params.id },
+      data: {
+        amount: amount !== undefined ? parseFloat(amount) : undefined,
+        status: status || undefined,
+        paymentType: paymentType || undefined,
+        manualKey: manualKey !== undefined ? manualKey : undefined,
+        confirmedAt: (status === 'CONFIRMED' && order.status !== 'CONFIRMED') ? new Date() : undefined
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true },
+        },
+        product: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    res.json({ order: updatedOrder, message: 'Order updated successfully' });
+  } catch (error) {
+    console.error('Update order error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // ==================== PAYMENT METHODS ====================
 
 // PUT /payment-methods/:id — update payment method
