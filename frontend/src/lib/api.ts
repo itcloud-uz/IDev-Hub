@@ -239,6 +239,10 @@ export const getFileUrl = (url: string) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
   const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, '');
+    return `${baseUrl}${cleanUrl}`;
+  }
   if (typeof window !== 'undefined') {
     return `${window.location.protocol}//${window.location.hostname}:5000${cleanUrl}`;
   }
